@@ -131,7 +131,14 @@ function weightsFromBacktest(bt) {
   // ---------- new prediction ----------
   const target = nextTarget(draws);
   const predFile = path.join(P.predictions, `${target.date}.json`);
-  if (fs.existsSync(predFile)) {
+  // After tonight's draw, wait for its result before locking the next draw so the
+  // next prediction includes it. Give up waiting at 23:00 (the morning run covers it).
+  const { date: todayBkk, minutes: nowMin } = bkkParts(NOW);
+  const todayWd = weekdayOf(todayBkk);
+  const awaitingToday = todayWd >= 1 && todayWd <= 5 && nowMin >= 20 * 60 + 30 && nowMin < 23 * 60 && !allDraws[todayBkk];
+  if (awaitingToday && target.date > todayBkk && !fs.existsSync(predFile)) {
+    console.log(`ยังไม่มีผลงวด ${todayBkk} — รอรอบถัดไปก่อนล็อกงวด ${target.date}`);
+  } else if (fs.existsSync(predFile)) {
     console.log(`คำทำนายงวด ${target.date} ล็อกไว้แล้ว — ไม่เขียนทับ`);
   } else if (NOW > drawCloseUTC(target.date)) {
     console.log(`เลยเวลาปิดของงวด ${target.date} แล้ว — ไม่สร้าง`);

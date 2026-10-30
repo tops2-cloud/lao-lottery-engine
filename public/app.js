@@ -46,21 +46,18 @@ async function latestResultBlock(res) {
 
   const pred = await load(`predictions/${d.date}`);
   const actual = { top3: d.top3, top2: d.top2, bottom2: d.bottom2 };
-  const cmp = (c) => {
-    if (!pred) return '';
+  const cats = ['top3', 'top2', 'bottom2'];
+  const cmp = pred ? `<div class="cmp">${cats.map((c) => {
     const picks = pred.final[c] || [];
     const hit = picks.includes(actual[c]);
-    return `<div class="cmp"><span class="${hit ? 'hit' : 'miss'}">${hit ? 'ชุดที่ล็อกไว้ถูก' : 'ชุดที่ล็อกไว้ไม่ถูก'}</span>
-      ${picks.map((n) => `<span class="pick${n === actual[c] ? ' on' : ''}">${esc(n)}</span>`).join('')}</div>`;
-  };
+    return `<div class="cmp-row"><span class="lbl">${CAT_TH[c]}</span><span class="mark ${hit ? 'hit' : 'miss'}" aria-label="${hit ? 'ถูก' : 'ไม่ถูก'}">${hit ? '✓' : '✗'}</span>${picks.map((n) => `<span class="pick${n === actual[c] ? ' on' : ''}">${esc(n)}</span>`).join('')}</div>`;
+  }).join('')}</div>` : '';
   return `${waiting}
     <section class="result" aria-label="ผลงวดล่าสุด">
-      <h2>ผลงวด${esc(fmtDate(d.date))} ${badge(d.status)}</h2>
-      ${d.last4 ? `<p class="sub">เลขท้าย 4 ตัว <b class="n">${esc(d.last4)}</b></p>` : ''}
-      <div class="res-grid">
-        ${['top3', 'top2', 'bottom2'].map((c) => `<div class="res"><span>${CAT_TH[c]}</span><b>${esc(actual[c])}</b>${cmp(c)}</div>`).join('')}
-      </div>
-      <p class="sub">ยืนยันจาก ${d.voters.map((s) => esc(res.sources[s]?.name || s)).join(', ') || '–'}${pred ? ` เทียบกับชุดที่ล็อกเมื่อ ${esc(fmtTime(pred.lockedAt))}` : ' (งวดนี้ไม่มีชุดที่ล็อกไว้)'}</p>
+      <div class="r-head"><b>ผลงวด ${esc(fmtDate(d.date))}</b>${badge(d.status)}</div>
+      <div class="r-nums">${cats.map((c) => `<div><small>${CAT_TH[c]}</small><b>${esc(actual[c])}</b></div>`).join('')}</div>
+      ${cmp}
+      <p class="tiny">${d.last4 ? `เลขท้าย 4 ตัว ${esc(d.last4)} · ` : ''}ยืนยันจาก ${d.voters.map((s) => esc(res.sources[s]?.name || s)).join(', ') || '–'}${pred ? ` · เทียบชุดที่ล็อก ${esc(fmtTime(pred.lockedAt))}` : ''}</p>
     </section>`;
 }
 
@@ -71,39 +68,34 @@ async function viewPredict() {
   const p = await load('latest');
   if (!p) return top + '<p class="empty">ยังไม่มีคำทำนาย รัน <code>npm run build</code> หรือรอ GitHub Actions รอบถัดไป</p>';
   const actual = res?.draws.find((d) => d.date === p.target.date && d.usable);
+  const row = (letter, c, list, small) => `<div class="row${small ? ' opp' : ''}"><span>${letter} ${CAT_TH[c]}</span>${nums(list, small)}</div>`;
   return `${top}
-    <h1>งวดถัดไป ${esc(fmtDate(p.target.date))}</h1>
-    <p class="sub">${actual ? `ผลออกแล้ว ${esc(actual.top3)} / ${esc(actual.bottom2)}` : 'ยังไม่ออกผล ออกจันทร์ถึงศุกร์ 20:30 น.'}</p>
-
     <section class="sealed" aria-label="ชุดเลขสรุปที่ล็อกไว้">
-      <span class="seal">ล็อกแล้ว ${esc(fmtTime(p.lockedAt))}</span>
-      <div class="row"><span>C · 3 ตัวบน</span>${nums(p.final.top3)}</div>
-      <div class="row"><span>D · 2 ตัวบน</span>${nums(p.final.top2)}</div>
-      <div class="row"><span>E · 2 ตัวล่าง</span>${nums(p.final.bottom2)}</div>
-      <div class="row"><span>F · คู่ตรงข้าม</span>
-        <div class="opp">
-          ${['top3', 'top2', 'bottom2'].map((c) => `<div><small>${CAT_TH[c]}</small>${nums(p.opposite[c], true)}</div>`).join('')}
-        </div>
-      </div>
-      <div class="lockmeta">
-        <span>รหัสตรวจสอบ <code>${esc(p.hash)}</code></span>
-        <span>ใช้ข้อมูลถึง ${esc(fmtDate(p.A.dataThrough))}</span>
-        <span>คิดคะแนนจาก ${esc(p.ensemble.used.join(', '))}</span>
-      </div>
+      <div class="s-head"><b>งวดถัดไป ${esc(fmtDate(p.target.date))}</b><span class="seal">ล็อก ${esc(fmtTime(p.lockedAt))}</span></div>
+      ${actual ? `<p class="tiny">ผลออกแล้ว ${esc(actual.top3)} / ${esc(actual.bottom2)}</p>` : ''}
+      ${row('C', 'top3', p.final.top3)}
+      ${row('D', 'top2', p.final.top2)}
+      ${row('E', 'bottom2', p.final.bottom2)}
+      <p class="f-title">F คู่ตรงข้าม <span>(0↔5 1↔6 2↔7 3↔8 4↔9)</span></p>
+      ${['top3', 'top2', 'bottom2'].map((c) => row('', c, p.opposite[c], true)).join('')}
+      <p class="tiny lockmeta">รหัส ${esc(p.hash)} · ข้อมูลถึง ${esc(fmtDate(p.A.dataThrough))} · คะแนนจาก ${esc(p.ensemble.used.join(' '))}</p>
     </section>
-    <p class="sub">เลขแรกของแต่ละแถวคือคะแนนรวมสูงสุด คู่ตรงข้ามใช้ 0↔5, 1↔6, 2↔7, 3↔8, 4↔9 กับชุดสรุปเท่านั้น</p>
 
-    <h2>G. จุดที่ควรระวัง</h2>
-    <ul class="notes">${p.caveats.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>
-    ${p.ensemble.reasons?.length ? `<p class="sub">${p.ensemble.reasons.map(esc).join('<br>')}</p>` : ''}
+    <details class="fold">
+      <summary>G. จุดที่ควรระวัง (${p.caveats.length})</summary>
+      <ul class="notes">${p.caveats.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>
+      ${p.ensemble.reasons?.length ? `<p class="sub">${p.ensemble.reasons.map(esc).join('<br>')}</p>` : ''}
+    </details>
 
-    <h2>A. ข้อมูลที่ใช้</h2>
-    <p>${esc(p.A.draws)} งวดที่ผ่านการตรวจ ถึงงวด${esc(fmtDate(p.A.dataThrough))} จากแหล่ง ${p.A.sources.map((s) => `<a href="${esc(s.url)}" rel="noopener" target="_blank">${esc(s.name)}</a>${s.independent ? '' : ' (สำเนาของ LottoTH)'}`).join(', ')}</p>
-    <div class="scroll"><table class="tbl">
-      <thead><tr><th>งวด</th><th>3 ตัวบน</th><th>2 ตัวบน</th><th>2 ตัวล่าง</th><th>สถานะ</th></tr></thead>
-      <tbody>${p.A.recent.map((d) => `<tr><td>${esc(fmtDate(d.date))}</td><td class="n">${esc(d.top3)}</td><td class="n">${esc(d.top2)}</td><td class="n">${esc(d.bottom2)}</td><td>${badge(d.status)}</td></tr>`).join('')}</tbody>
-    </table></div>
-    <p class="sub">B. ตารางแยก 8 โมเดลอยู่ที่แท็บ <a href="#models">8 โมเดล</a></p>`;
+    <details class="fold">
+      <summary>A. ข้อมูลที่ใช้ (${esc(p.A.draws)} งวด)</summary>
+      <p class="sub">ถึงงวด${esc(fmtDate(p.A.dataThrough))} จาก ${p.A.sources.map((s) => `<a href="${esc(s.url)}" rel="noopener" target="_blank">${esc(s.name)}</a>${s.independent ? '' : ' (สำเนาของ LottoTH)'}`).join(', ')}</p>
+      <table class="tbl compact">
+        <thead><tr><th>งวด</th><th>บน</th><th>2บน</th><th>ล่าง</th><th></th></tr></thead>
+        <tbody>${p.A.recent.map((d) => `<tr><td>${esc(fmtDate(d.date))}</td><td class="n">${esc(d.top3)}</td><td class="n">${esc(d.top2)}</td><td class="n">${esc(d.bottom2)}</td><td>${d.status === 'verified' ? '<span class="hit" title="ยืนยัน 2+ แหล่ง">✓</span>' : badge(d.status)}</td></tr>`).join('')}</tbody>
+      </table>
+    </details>
+    <p class="tiny">B. ตาราง 8 โมเดลอยู่ที่แท็บ <a href="#models">8 โมเดล</a></p>`;
 }
 
 async function viewModels() {
