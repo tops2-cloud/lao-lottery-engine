@@ -23,14 +23,56 @@ async function load(name) {
 const badge = (s) => `<span class="badge b-${esc(s)}">${esc(STATUS_TH[s] || s)}</span>`;
 const nums = (list, small) => `<div class="nums${small ? ' small' : ''}">${(list || []).map((n, i) => `<span class="num${i === 0 && !small ? ' lead' : ''}">${esc(n)}</span>`).join('') || '<span class="sub">ไม่มี</span>'}</div>`;
 
+// Bangkok "now" as { date: 'YYYY-MM-DD', minutes, weekday }
+function bkkNow() {
+  const t = new Date(Date.now() + 7 * 3600 * 1000);
+  return { date: t.toISOString().slice(0, 10), minutes: t.getUTCHours() * 60 + t.getUTCMinutes(), weekday: t.getUTCDay() };
+}
+
+// Latest drawn result + how that day's locked set did
+async function latestResultBlock(res) {
+  const now = bkkNow();
+  const isDrawDay = now.weekday >= 1 && now.weekday <= 5;
+  const todayRow = res.draws.find((d) => d.date === now.date);
+  let waiting = '';
+  if (isDrawDay && !todayRow) {
+    waiting = now.minutes < 20 * 60 + 30
+      ? `<p class="sub">งวดวันนี้ออก 20:30 น. ระบบดึงผลรอบ 20:38, 20:52, 21:23 และ 22:07 น.</p>`
+      : `<p class="waiting">รอผลงวดวันนี้ ระบบจะดึงผลอัตโนมัติภายใน 22:07 น. ลองรีเฟรชหน้านี้อีกครั้ง</p>`;
+  }
+  const d = res.draws.find((x) => x.usable || x.status === 'no_draw');
+  if (!d) return waiting;
+  if (d.status === 'no_draw') return `${waiting}<section class="result"><h2>ผลงวด${esc(fmtDate(d.date))}</h2><p>งดออกผล</p></section>`;
+
+  const pred = await load(`predictions/${d.date}`);
+  const actual = { top3: d.top3, top2: d.top2, bottom2: d.bottom2 };
+  const cmp = (c) => {
+    if (!pred) return '';
+    const picks = pred.final[c] || [];
+    const hit = picks.includes(actual[c]);
+    return `<div class="cmp"><span class="${hit ? 'hit' : 'miss'}">${hit ? 'ชุดที่ล็อกไว้ถูก' : 'ชุดที่ล็อกไว้ไม่ถูก'}</span>
+      ${picks.map((n) => `<span class="pick${n === actual[c] ? ' on' : ''}">${esc(n)}</span>`).join('')}</div>`;
+  };
+  return `${waiting}
+    <section class="result" aria-label="ผลงวดล่าสุด">
+      <h2>ผลงวด${esc(fmtDate(d.date))} ${badge(d.status)}</h2>
+      ${d.last4 ? `<p class="sub">เลขท้าย 4 ตัว <b class="n">${esc(d.last4)}</b></p>` : ''}
+      <div class="res-grid">
+        ${['top3', 'top2', 'bottom2'].map((c) => `<div class="res"><span>${CAT_TH[c]}</span><b>${esc(actual[c])}</b>${cmp(c)}</div>`).join('')}
+      </div>
+      <p class="sub">ยืนยันจาก ${d.voters.map((s) => esc(res.sources[s]?.name || s)).join(', ') || '–'}${pred ? ` เทียบกับชุดที่ล็อกเมื่อ ${esc(fmtTime(pred.lockedAt))}` : ' (งวดนี้ไม่มีชุดที่ล็อกไว้)'}</p>
+    </section>`;
+}
+
 // ---------- views ----------
 async function viewPredict() {
-  const p = await load('latest');
-  if (!p) return '<p class="empty">ยังไม่มีคำทำนาย รัน <code>npm run build</code> หรือรอ GitHub Actions รอบถัดไป</p>';
   const res = await load('results');
+  const top = res ? await latestResultBlock(res) : '';
+  const p = await load('latest');
+  if (!p) return top + '<p class="empty">ยังไม่มีคำทำนาย รัน <code>npm run build</code> หรือรอ GitHub Actions รอบถัดไป</p>';
   const actual = res?.draws.find((d) => d.date === p.target.date && d.usable);
-  return `
-    <h1>งวด${esc(fmtDate(p.target.date))}</h1>
+  return `${top}
+    <h1>งวดถัดไป ${esc(fmtDate(p.target.date))}</h1>
     <p class="sub">${actual ? `ผลออกแล้ว ${esc(actual.top3)} / ${esc(actual.bottom2)}` : 'ยังไม่ออกผล ออกจันทร์ถึงศุกร์ 20:30 น.'}</p>
 
     <section class="sealed" aria-label="ชุดเลขสรุปที่ล็อกไว้">
