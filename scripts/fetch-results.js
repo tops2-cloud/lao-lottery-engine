@@ -22,6 +22,17 @@ async function scrapeSites(market, now) {
       if (id === 'phonhuay') extra.phonhuayDates = parsePhonhuayHistory(html).dates;
       const n = Object.keys(recs).length;
       if (!n) { console.warn(`⚠️  [${market.id}] ${id}: อ่านตารางไม่ได้ (โครงสร้างหน้าอาจเปลี่ยน) — ข้าม`); continue; }
+      // Sanity check against data we already trust: a parser that misreads the page
+      // would otherwise turn good draws into "conflict".
+      const ref = market.id === 'thai' ? loadSources(market).archive || {} : null;
+      if (ref) {
+        const both = Object.keys(recs).filter((d) => ref[d] && recs[d].bottom2);
+        const agree = both.filter((d) => { const a = market.normalize(ref[d]); const b = market.normalize(recs[d]); return a.top3 === b.top3 && a.bottom2 === b.bottom2; });
+        if (both.length >= 5 && agree.length / both.length < 0.8) {
+          console.warn(`⚠️  [${market.id}] ${id}: ตรงกับคลังหลักแค่ ${agree.length}/${both.length} งวด — ตัวอ่านน่าจะอ่านผิด ไม่บันทึก`);
+          continue;
+        }
+      }
       const r = upsertSource(id, recs, now, market);
       console.log(`✓ [${market.id}] ${id}: อ่านได้ ${n} งวด, ใหม่ ${r.added}, เปลี่ยน ${r.changed}`);
       ok++;
@@ -54,12 +65,16 @@ async function lao(now, backfill) {
 async function thai(now) {
   const market = MARKETS.thai;
   let ok = (await scrapeSites(market, now)).ok;
-  // Main source: thai-lotto-archive on GitHub (one text file per draw).
+  // Main source: thai-lotto-archive on GitHub (one text file per draw). The workflow
+  // already imports a full clone; this API path is a fallback for local runs.
   try {
-    const list = JSON.parse(await get(ARCHIVE_LIST, 'application/vnd.github+json'));
+    const headers = process.env.GITHUB_TOKEN ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` } : {};
+    const res = await fetch(ARCHIVE_LIST, { headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'lao-lottery-engine', ...headers } });
+    if (!res.ok) throw new Error(`GitHub API HTTP ${res.status}`);
+    const list = await res.json();
     const have = loadSources(market).archive || {};
     const names = list.map((x) => x.name).filter((n) => /^\d{4}-\d{2}-\d{2}\.txt$/.test(n) && n >= '2015-09-01');
-    const todo = names.filter((n) => !have[n.slice(0, 10)]).slice(-30);
+    const todo = names.filter((n) => !have[n.slice(0, 10)]).slice(-300);
     const recs = {};
     for (const name of todo) {
       const r = parseArchiveFile(await get(ARCHIVE_RAW(name), 'text/plain'));

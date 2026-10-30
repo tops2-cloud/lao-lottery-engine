@@ -7,9 +7,10 @@ const STATUS_TH = {
   conflict: 'ขัดกัน', suspect: 'น่าสงสัย', no_draw: 'งดออกผล', pending: 'รอผล',
 };
 const MODEL_TH = { ENSEMBLE: 'ชุดสรุป', RANDOM: 'สุ่ม (ตัวเทียบ)', OPPOSITE: 'R8 คู่ตรงข้าม' };
+// showFrom: a draw dated today is only shown from this time (minutes after midnight, Bangkok)
 const MARKETS = {
-  lao: { base: 'data', defaultCats: ['top3', 'top2', 'bottom2'], letters: { top3: 'C', top2: 'D', bottom2: 'E' }, drawTime: 20 * 60 + 30, lastRun: '22:07', drawDay: (wd) => wd >= 1 && wd <= 5 },
-  thai: { base: 'data/thai', defaultCats: ['top3', 'bottom3', 'top2', 'bottom2'], letters: {}, drawTime: 15 * 60 + 30, lastRun: '19:13', drawDay: () => false },
+  lao: { base: 'data', defaultCats: ['top3', 'top2', 'bottom2'], letters: { top3: 'C', top2: 'D', bottom2: 'E' }, showFrom: 20 * 60 + 30, runs: '20:38–22:07' },
+  thai: { base: 'data/thai', defaultCats: ['top3', 'bottom3', 'top2', 'bottom2'], letters: {}, showFrom: 16 * 60, runs: '16:23, 17:47 และ 19:13' },
 };
 
 const $app = document.getElementById('app');
@@ -43,30 +44,46 @@ function bkkNow() {
 }
 
 // ---------- latest result + how that draw's locked set did ----------
-async function latestResultBlock(res, cats) {
+const pickRow = (label, picks, win) => {
+  const hit = picks.some((p) => win.includes(p));
+  return `<div class="cmp-row"><span class="lbl">${label}</span><span class="mark ${hit ? 'hit' : 'miss'}" aria-label="${hit ? 'ถูก' : 'ไม่ถูก'}">${hit ? '✓' : '✗'}</span>${picks.map((n) => `<span class="pick${win.includes(n) ? ' on' : ''}">${esc(n)}</span>`).join('')}</div>`;
+};
+
+function laoNums(d, cats) {
+  return `<div class="r-nums">${cats.map((c) => `<div><small>${CAT_TH[c]}</small><b>${show(d[c])}</b></div>`).join('')}</div>`;
+}
+
+// Laid out like the official sheet: รางวัลที่ 1, เลขหน้า 3 ตัว, เลขท้าย 3 ตัว, เลขท้าย 2 ตัว
+function thaiNums(d) {
+  if (!d.first && !d.front3) return laoNums(d, ['top3', 'top2', 'bottom2']);
+  return `<div class="t-nums">
+      <div class="t-first"><small>รางวัลที่ 1</small><b>${esc(d.first || '–')}</b></div>
+      <div class="t-two"><small>เลขท้าย 2 ตัว</small><b>${esc(d.bottom2)}</b></div>
+      <div><small>เลขหน้า 3 ตัว</small><b>${(d.front3 || ['–']).map(esc).join(' ')}</b></div>
+      <div><small>เลขท้าย 3 ตัว</small><b>${(d.last3 || ['–']).map(esc).join(' ')}</b></div>
+    </div>`;
+}
+
+async function latestResultBlock(res, cats, latestPred) {
   const now = bkkNow();
-  const waiting = M().drawDay(now.weekday) && now.minutes >= M().drawTime && !res.draws.find((d) => d.date === now.date)
-    ? `<p class="waiting">รอผลงวดวันนี้ ระบบจะดึงผลอัตโนมัติภายใน ${M().lastRun} น.</p>` : '';
-  const d = res.draws.find((x) => x.usable || x.status === 'no_draw');
+  // Before draw time, today's draw is not shown yet — show the one before it.
+  const visible = (d) => !(d.date === now.date && now.minutes < M().showFrom);
+  const d = res.draws.find((x) => (x.usable || x.status === 'no_draw') && visible(x));
+  const drawToday = market === 'lao' ? now.weekday >= 1 && now.weekday <= 5 : latestPred?.target?.date === now.date;
+  const waiting = drawToday && now.minutes >= M().showFrom && !res.draws.some((x) => x.date === now.date)
+    ? `<p class="waiting">รอผลงวดวันนี้ ระบบดึงผลรอบ ${M().runs} น.</p>` : '';
   if (!d) return waiting;
   if (d.status === 'no_draw') return `${waiting}<section class="result"><div class="r-head"><b>ผลงวด ${esc(fmtDate(d.date))}</b></div><p class="tiny">งดออกผล</p></section>`;
 
   const idx = await load('predictions');
   const entry = idx?.entries?.find((e) => (e.drawDate || e.date) === d.date && e.actual);
   const pred = entry ? await load(`predictions/${entry.date}`) : await load(`predictions/${d.date}`);
-  const cmp = pred ? `<div class="cmp">${cats.map((c) => {
-    const picks = pred.final[c] || [];
-    const win = vals(d[c]);
-    const hit = picks.some((p) => win.includes(p));
-    return `<div class="cmp-row"><span class="lbl">${CAT_TH[c]}</span><span class="mark ${hit ? 'hit' : 'miss'}" aria-label="${hit ? 'ถูก' : 'ไม่ถูก'}">${hit ? '✓' : '✗'}</span>${picks.map((n) => `<span class="pick${win.includes(n) ? ' on' : ''}">${esc(n)}</span>`).join('')}</div>`;
-  }).join('')}</div>` : '';
-  const extra = d.first ? `รางวัลที่ 1 ${esc(d.first)} · ` : d.last4 ? `เลขท้าย 4 ตัว ${esc(d.last4)} · ` : '';
+  const cmp = pred ? `<div class="cmp">${cats.map((c) => pickRow(CAT_TH[c], pred.final[c] || [], vals(d[c]))).join('')}</div>` : '';
+  const extra = market === 'lao' && d.last4 ? `เลขท้าย 4 ตัว ${esc(d.last4)} · ` : '';
   return `${waiting}
     <section class="result" aria-label="ผลงวดล่าสุด">
       <div class="r-head"><b>ผลงวด ${esc(fmtDate(d.date))}</b>${badge(d.status)}</div>
-      <div class="r-nums">${[...cats].sort((a, b) => Array.isArray(d[a]) - Array.isArray(d[b])).map((c) => Array.isArray(d[c])
-        ? `<div class="multi"><small>${CAT_TH[c]}</small><b>${d[c].map(esc).join(' ')}</b></div>`
-        : `<div><small>${CAT_TH[c]}</small><b>${show(d[c])}</b></div>`).join('')}</div>
+      ${market === 'thai' ? thaiNums(d) : laoNums(d, cats)}
       ${cmp}
       <p class="tiny">${extra}ยืนยันจาก ${d.voters.map((s) => esc(res.sources[s]?.name || s)).join(', ') || '–'}${pred ? ` · เทียบชุดที่ล็อก ${esc(fmtTime(pred.lockedAt))}` : ''}</p>
     </section>`;
@@ -76,9 +93,10 @@ async function latestResultBlock(res, cats) {
 async function viewPredict() {
   const res = await load('results');
   const cats = await catsOf();
-  const top = res ? await latestResultBlock(res, cats) : '';
   const p = await load('latest');
-  if (!p) return top + '<p class="empty">ยังไม่มีคำทำนาย รอ GitHub Actions รอบถัดไป</p>';
+  if (!res) return `<p class="empty">ยังไม่มีข้อมูล${market === 'thai' ? 'หวยไทย' : ''}บนเว็บ ให้ไปที่ GitHub แท็บ Actions แล้วกด Run workflow หนึ่งครั้ง ถ้ารันแล้วยังไม่ขึ้น ให้ดูขั้น "Build" ว่ามีข้อความผิดพลาดหรือไม่</p>`;
+  const top = await latestResultBlock(res, cats, p);
+  if (!p) return top + '<p class="empty">ยังไม่มีคำทำนาย ระบบจะล็อกเมื่อ GitHub Actions รันรอบถัดไป</p>';
   const actual = res?.draws.find((d) => d.date === p.target.date && d.usable);
   const L = M().letters;
   const row = (c, list, small) => `<div class="row${small ? ' opp' : ''}"><span>${small ? '' : esc(L[c] ? `${L[c]} ` : '')}${CAT_TH[c]}</span>${nums(list, small)}</div>`;
