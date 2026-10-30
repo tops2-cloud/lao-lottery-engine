@@ -91,6 +91,13 @@ p { margin: 0 0 10px; max-width: 68ch; }
 .pick.on { background: var(--ok); color: #fff; }
 .waiting { border-left: 4px solid var(--ink); background: var(--card); padding: 8px 12px; border-radius: 0 10px 10px 0; font-size: 14px; margin: 0 0 10px; }
 
+/* previous predictions */
+.prev { border-top: 1px solid var(--line); padding: 8px 0 4px; }
+.prev:first-of-type { border-top: 0; padding-top: 2px; }
+.p-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 13px; margin-bottom: 2px; }
+.p-head b { font: 600 14px/1.4 var(--num); }
+.p-res { font: 600 13px var(--num); color: var(--ink-soft); }
+
 /* folded sections */
 details.fold { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 8px 14px; margin: 8px 0; }
 details.fold summary { cursor: pointer; font: 600 15px/1.5 var(--num); }

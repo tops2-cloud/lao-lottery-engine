@@ -88,6 +88,32 @@ async function latestResultBlock(res, cats, latestPred) {
     </section>`;
 }
 
+// Earlier locked predictions (newest first), each with its result if known.
+async function previousBlock(latestDate, cats) {
+  const idx = await load('predictions');
+  const list = (idx?.entries || []).filter((e) => e.date !== latestDate).slice(0, 10);
+  if (!list.length) return '';
+  const preds = await Promise.all(list.map((e) => load(`predictions/${e.date}`)));
+  const cards = list.map((e, i) => {
+    const pr = preds[i];
+    if (!pr) return '';
+    const a = e.actual;
+    const hits = a ? cats.filter((c) => e.scores?.ENSEMBLE?.[c]?.exact).length : 0;
+    const head = `<div class="p-head"><b>งวด ${esc(fmtDate(e.date))}</b>${a
+      ? `<span class="p-res">ผล ${esc(a.top3)} / ${esc(a.bottom2)}</span><span class="${hits ? 'hit' : 'miss'}">${hits ? `ถูก ${hits} หมวด` : 'ไม่ถูก'}</span>`
+      : badge(e.status === 'no_draw' ? 'no_draw' : 'pending')}</div>`;
+    const rows = cats.map((c) => (a
+      ? pickRow(CAT_TH[c], pr.final[c] || [], vals(a[c]))
+      : `<div class="cmp-row"><span class="lbl">${CAT_TH[c]}</span><span class="mark"></span>${(pr.final[c] || []).map((n) => `<span class="pick">${esc(n)}</span>`).join('')}</div>`)).join('');
+    return `<div class="prev">${head}${rows}<p class="tiny">ล็อก ${esc(fmtTime(e.lockedAt))}${e.onTime ? '' : ' · ล็อกช้า ไม่นับ'}</p></div>`;
+  }).join('');
+  return `<details class="fold">
+      <summary>คำทำนายงวดก่อนหน้า (${list.length})</summary>
+      ${cards}
+      <p class="tiny">ทั้งหมดดูได้ที่แท็บ <a href="#${market}/archive">คำทำนายที่ล็อก</a></p>
+    </details>`;
+}
+
 // ---------- views ----------
 async function viewPredict() {
   const res = await load('results');
@@ -108,6 +134,8 @@ async function viewPredict() {
       ${cats.map((c) => row(c, p.opposite[c], true)).join('')}
       <p class="tiny lockmeta">รหัส ${esc(p.hash)} · ข้อมูลถึง ${esc(fmtDate(p.A.dataThrough))} · คะแนนจาก ${esc(p.ensemble.used.join(' '))}</p>
     </section>
+
+    ${await previousBlock(p.target.date, cats)}
 
     <details class="fold">
       <summary>${market === 'lao' ? 'G. ' : ''}จุดที่ควรระวัง (${p.caveats.length})</summary>
