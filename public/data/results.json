@@ -1,5 +1,5 @@
 {
-  "builtAt": "2026-10-30T14:40:56.811Z",
+  "builtAt": "2026-10-30T15:16:17.152Z",
   "market": {
     "id": "lao",
     "name": "หวยลาว",
@@ -36,8 +36,8 @@
     }
   },
   "counts": {
-    "single": 51,
-    "verified": 198,
+    "single": 29,
+    "verified": 229,
     "majority": 2
   },
   "draws": [
@@ -5161,19 +5161,21 @@
       "weekdayTh": "จันทร์",
       "group": "1",
       "groupTh": "วันจันทร์",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "9456",
       "top3": "456",
       "top2": "56",
       "bottom2": "94",
       "sources": {
+        "phonhuay": "456/94",
         "vgoldarena": "456/94"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5182,19 +5184,21 @@
       "weekdayTh": "ศุกร์",
       "group": "5",
       "groupTh": "วันศุกร์",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "7318",
       "top3": "318",
       "top2": "18",
       "bottom2": "73",
       "sources": {
+        "phonhuay": "318/73",
         "vgoldarena": "318/73"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5203,19 +5207,21 @@
       "weekdayTh": "พุธ",
       "group": "3",
       "groupTh": "วันพุธ",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "3946",
       "top3": "946",
       "top2": "46",
       "bottom2": "39",
       "sources": {
+        "phonhuay": "946/39",
         "vgoldarena": "946/39"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5224,19 +5230,21 @@
       "weekdayTh": "จันทร์",
       "group": "1",
       "groupTh": "วันจันทร์",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "1739",
       "top3": "739",
       "top2": "39",
       "bottom2": "17",
       "sources": {
+        "phonhuay": "739/17",
         "vgoldarena": "739/17"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5245,19 +5253,21 @@
       "weekdayTh": "ศุกร์",
       "group": "5",
       "groupTh": "วันศุกร์",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "8654",
       "top3": "654",
       "top2": "54",
       "bottom2": "86",
       "sources": {
+        "phonhuay": "654/86",
         "vgoldarena": "654/86"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5266,19 +5276,21 @@
       "weekdayTh": "พุธ",
       "group": "3",
       "groupTh": "วันพุธ",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "9506",
       "top3": "506",
       "top2": "06",
       "bottom2": "95",
       "sources": {
+        "phonhuay": "506/95",
         "vgoldarena": "506/95"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5287,19 +5299,21 @@
       "weekdayTh": "จันทร์",
       "group": "1",
       "groupTh": "วันจันทร์",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "2774",
       "top3": "774",
       "top2": "74",
       "bottom2": "27",
       "sources": {
+        "phonhuay": "774/27",
         "vgoldarena": "774/27"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5308,19 +5322,21 @@
       "weekdayTh": "ศุกร์",
       "group": "5",
       "groupTh": "วันศุกร์",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "6958",
       "top3": "958",
       "top2": "58",
       "bottom2": "69",
       "sources": {
+        "phonhuay": "958/69",
         "vgoldarena": "958/69"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5329,19 +5345,21 @@
       "weekdayTh": "พุธ",
       "group": "3",
       "groupTh": "วันพุธ",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "4415",
       "top3": "415",
       "top2": "15",
       "bottom2": "44",
       "sources": {
+        "phonhuay": "415/44",
         "vgoldarena": "415/44"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5350,19 +5368,21 @@
       "weekdayTh": "จันทร์",
       "group": "1",
       "groupTh": "วันจันทร์",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "9252",
       "top3": "252",
       "top2": "52",
       "bottom2": "92",
       "sources": {
+        "phonhuay": "252/92",
         "vgoldarena": "252/92"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5371,19 +5391,21 @@
       "weekdayTh": "ศุกร์",
       "group": "5",
       "groupTh": "วันศุกร์",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "0862",
       "top3": "862",
       "top2": "62",
       "bottom2": "08",
       "sources": {
+        "phonhuay": "862/08",
         "vgoldarena": "862/08"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5392,19 +5414,21 @@
       "weekdayTh": "พุธ",
       "group": "3",
       "groupTh": "วันพุธ",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "0543",
       "top3": "543",
       "top2": "43",
       "bottom2": "05",
       "sources": {
+        "phonhuay": "543/05",
         "vgoldarena": "543/05"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5413,19 +5437,21 @@
       "weekdayTh": "จันทร์",
       "group": "1",
       "groupTh": "วันจันทร์",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "6828",
       "top3": "828",
       "top2": "28",
       "bottom2": "68",
       "sources": {
+        "phonhuay": "828/68",
         "vgoldarena": "828/68"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5434,19 +5460,21 @@
       "weekdayTh": "ศุกร์",
       "group": "5",
       "groupTh": "วันศุกร์",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "0188",
       "top3": "188",
       "top2": "88",
       "bottom2": "01",
       "sources": {
+        "phonhuay": "188/01",
         "vgoldarena": "188/01"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5455,19 +5483,21 @@
       "weekdayTh": "พุธ",
       "group": "3",
       "groupTh": "วันพุธ",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "1709",
       "top3": "709",
       "top2": "09",
       "bottom2": "17",
       "sources": {
+        "phonhuay": "709/17",
         "vgoldarena": "709/17"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5476,19 +5506,21 @@
       "weekdayTh": "จันทร์",
       "group": "1",
       "groupTh": "วันจันทร์",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "3798",
       "top3": "798",
       "top2": "98",
       "bottom2": "37",
       "sources": {
+        "phonhuay": "798/37",
         "vgoldarena": "798/37"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5497,19 +5529,21 @@
       "weekdayTh": "ศุกร์",
       "group": "5",
       "groupTh": "วันศุกร์",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "8775",
       "top3": "775",
       "top2": "75",
       "bottom2": "87",
       "sources": {
+        "phonhuay": "775/87",
         "vgoldarena": "775/87"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5518,19 +5552,21 @@
       "weekdayTh": "พุธ",
       "group": "3",
       "groupTh": "วันพุธ",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "0701",
       "top3": "701",
       "top2": "01",
       "bottom2": "07",
       "sources": {
+        "phonhuay": "701/07",
         "vgoldarena": "701/07"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5539,19 +5575,21 @@
       "weekdayTh": "จันทร์",
       "group": "1",
       "groupTh": "วันจันทร์",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "4088",
       "top3": "088",
       "top2": "88",
       "bottom2": "40",
       "sources": {
+        "phonhuay": "088/40",
         "vgoldarena": "088/40"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5560,19 +5598,21 @@
       "weekdayTh": "ศุกร์",
       "group": "5",
       "groupTh": "วันศุกร์",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "8976",
       "top3": "976",
       "top2": "76",
       "bottom2": "89",
       "sources": {
+        "phonhuay": "976/89",
         "vgoldarena": "976/89"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5581,19 +5621,21 @@
       "weekdayTh": "พุธ",
       "group": "3",
       "groupTh": "วันพุธ",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "1541",
       "top3": "541",
       "top2": "41",
       "bottom2": "15",
       "sources": {
+        "phonhuay": "541/15",
         "vgoldarena": "541/15"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5602,19 +5644,21 @@
       "weekdayTh": "จันทร์",
       "group": "1",
       "groupTh": "วันจันทร์",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "8511",
       "top3": "511",
       "top2": "11",
       "bottom2": "85",
       "sources": {
+        "phonhuay": "511/85",
         "vgoldarena": "511/85"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5623,19 +5667,21 @@
       "weekdayTh": "ศุกร์",
       "group": "5",
       "groupTh": "วันศุกร์",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "0568",
       "top3": "568",
       "top2": "68",
       "bottom2": "05",
       "sources": {
+        "phonhuay": "568/05",
         "vgoldarena": "568/05"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5644,19 +5690,21 @@
       "weekdayTh": "พุธ",
       "group": "3",
       "groupTh": "วันพุธ",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "0722",
       "top3": "722",
       "top2": "22",
       "bottom2": "07",
       "sources": {
+        "phonhuay": "722/07",
         "vgoldarena": "722/07"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5665,19 +5713,21 @@
       "weekdayTh": "จันทร์",
       "group": "1",
       "groupTh": "วันจันทร์",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "9795",
       "top3": "795",
       "top2": "95",
       "bottom2": "97",
       "sources": {
+        "phonhuay": "795/97",
         "vgoldarena": "795/97"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5686,19 +5736,21 @@
       "weekdayTh": "ศุกร์",
       "group": "5",
       "groupTh": "วันศุกร์",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "4662",
       "top3": "662",
       "top2": "62",
       "bottom2": "46",
       "sources": {
+        "phonhuay": "662/46",
         "vgoldarena": "662/46"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5707,19 +5759,21 @@
       "weekdayTh": "พุธ",
       "group": "3",
       "groupTh": "วันพุธ",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "1934",
       "top3": "934",
       "top2": "34",
       "bottom2": "19",
       "sources": {
+        "phonhuay": "934/19",
         "vgoldarena": "934/19"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5728,19 +5782,21 @@
       "weekdayTh": "จันทร์",
       "group": "1",
       "groupTh": "วันจันทร์",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "6683",
       "top3": "683",
       "top2": "83",
       "bottom2": "66",
       "sources": {
+        "phonhuay": "683/66",
         "vgoldarena": "683/66"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5749,19 +5805,21 @@
       "weekdayTh": "ศุกร์",
       "group": "5",
       "groupTh": "วันศุกร์",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "9503",
       "top3": "503",
       "top2": "03",
       "bottom2": "95",
       "sources": {
+        "phonhuay": "503/95",
         "vgoldarena": "503/95"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5770,19 +5828,21 @@
       "weekdayTh": "พุธ",
       "group": "3",
       "groupTh": "วันพุธ",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "9473",
       "top3": "473",
       "top2": "73",
       "bottom2": "94",
       "sources": {
+        "phonhuay": "473/94",
         "vgoldarena": "473/94"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
       ],
-      "independentSources": 1,
+      "independentSources": 2,
       "issues": []
     },
     {
@@ -5791,17 +5851,208 @@
       "weekdayTh": "จันทร์",
       "group": "1",
       "groupTh": "วันจันทร์",
-      "status": "single",
+      "status": "verified",
       "usable": true,
       "last4": "8242",
       "top3": "242",
       "top2": "42",
       "bottom2": "82",
       "sources": {
+        "phonhuay": "242/82",
         "vgoldarena": "242/82"
       },
       "voters": [
+        "phonhuay",
         "vgoldarena"
+      ],
+      "independentSources": 2,
+      "issues": []
+    },
+    {
+      "date": "2025-08-01",
+      "weekday": 5,
+      "weekdayTh": "ศุกร์",
+      "group": "5",
+      "groupTh": "วันศุกร์",
+      "status": "single",
+      "usable": true,
+      "last4": "7617",
+      "top3": "617",
+      "top2": "17",
+      "bottom2": "76",
+      "sources": {
+        "phonhuay": "617/76"
+      },
+      "voters": [
+        "phonhuay"
+      ],
+      "independentSources": 1,
+      "issues": []
+    },
+    {
+      "date": "2025-07-30",
+      "weekday": 3,
+      "weekdayTh": "พุธ",
+      "group": "3",
+      "groupTh": "วันพุธ",
+      "status": "single",
+      "usable": true,
+      "last4": "2872",
+      "top3": "872",
+      "top2": "72",
+      "bottom2": "28",
+      "sources": {
+        "phonhuay": "872/28"
+      },
+      "voters": [
+        "phonhuay"
+      ],
+      "independentSources": 1,
+      "issues": []
+    },
+    {
+      "date": "2025-07-28",
+      "weekday": 1,
+      "weekdayTh": "จันทร์",
+      "group": "1",
+      "groupTh": "วันจันทร์",
+      "status": "single",
+      "usable": true,
+      "last4": "2528",
+      "top3": "528",
+      "top2": "28",
+      "bottom2": "25",
+      "sources": {
+        "phonhuay": "528/25"
+      },
+      "voters": [
+        "phonhuay"
+      ],
+      "independentSources": 1,
+      "issues": []
+    },
+    {
+      "date": "2025-07-25",
+      "weekday": 5,
+      "weekdayTh": "ศุกร์",
+      "group": "5",
+      "groupTh": "วันศุกร์",
+      "status": "single",
+      "usable": true,
+      "last4": "6849",
+      "top3": "849",
+      "top2": "49",
+      "bottom2": "68",
+      "sources": {
+        "phonhuay": "849/68"
+      },
+      "voters": [
+        "phonhuay"
+      ],
+      "independentSources": 1,
+      "issues": []
+    },
+    {
+      "date": "2025-07-23",
+      "weekday": 3,
+      "weekdayTh": "พุธ",
+      "group": "3",
+      "groupTh": "วันพุธ",
+      "status": "single",
+      "usable": true,
+      "last4": "0440",
+      "top3": "440",
+      "top2": "40",
+      "bottom2": "04",
+      "sources": {
+        "phonhuay": "440/04"
+      },
+      "voters": [
+        "phonhuay"
+      ],
+      "independentSources": 1,
+      "issues": []
+    },
+    {
+      "date": "2025-07-21",
+      "weekday": 1,
+      "weekdayTh": "จันทร์",
+      "group": "1",
+      "groupTh": "วันจันทร์",
+      "status": "single",
+      "usable": true,
+      "last4": "1942",
+      "top3": "942",
+      "top2": "42",
+      "bottom2": "19",
+      "sources": {
+        "phonhuay": "942/19"
+      },
+      "voters": [
+        "phonhuay"
+      ],
+      "independentSources": 1,
+      "issues": []
+    },
+    {
+      "date": "2025-07-18",
+      "weekday": 5,
+      "weekdayTh": "ศุกร์",
+      "group": "5",
+      "groupTh": "วันศุกร์",
+      "status": "single",
+      "usable": true,
+      "last4": "4269",
+      "top3": "269",
+      "top2": "69",
+      "bottom2": "42",
+      "sources": {
+        "phonhuay": "269/42"
+      },
+      "voters": [
+        "phonhuay"
+      ],
+      "independentSources": 1,
+      "issues": []
+    },
+    {
+      "date": "2025-07-16",
+      "weekday": 3,
+      "weekdayTh": "พุธ",
+      "group": "3",
+      "groupTh": "วันพุธ",
+      "status": "single",
+      "usable": true,
+      "last4": "1037",
+      "top3": "037",
+      "top2": "37",
+      "bottom2": "10",
+      "sources": {
+        "phonhuay": "037/10"
+      },
+      "voters": [
+        "phonhuay"
+      ],
+      "independentSources": 1,
+      "issues": []
+    },
+    {
+      "date": "2025-07-14",
+      "weekday": 1,
+      "weekdayTh": "จันทร์",
+      "group": "1",
+      "groupTh": "วันจันทร์",
+      "status": "single",
+      "usable": true,
+      "last4": "9130",
+      "top3": "130",
+      "top2": "30",
+      "bottom2": "91",
+      "sources": {
+        "phonhuay": "130/91"
+      },
+      "voters": [
+        "phonhuay"
       ],
       "independentSources": 1,
       "issues": []
