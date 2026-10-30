@@ -1,0 +1,110 @@
+:root {
+  --ink: #14325C;        /* Lao blue, used as text and structure */
+  --ink-soft: #4A5F7E;
+  --paper: #F3F6FA;      /* cool white */
+  --card: #FFFFFF;
+  --line: #D5DDE8;
+  --seal: #C8102E;       /* Lao red — only for the lock seal and true alerts */
+  --ok: #1F7A4D;
+  --warn: #A3620A;
+  --muted-bg: #E8EEF5;
+  --digit-bg: #14325C;
+  --digit-fg: #FFFFFF;
+  --num: 'Chakra Petch', 'IBM Plex Sans Thai', sans-serif;
+  --body: 'IBM Plex Sans Thai', system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #DCE6F4; --ink-soft: #9DB0CB; --paper: #0E1A2C; --card: #15243A; --line: #2A3D58;
+    --seal: #FF5A6E; --ok: #5CC995; --warn: #E7B25A; --muted-bg: #1C2E48; --digit-bg: #DCE6F4; --digit-fg: #0E1A2C;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #DCE6F4; --ink-soft: #9DB0CB; --paper: #0E1A2C; --card: #15243A; --line: #2A3D58;
+  --seal: #FF5A6E; --ok: #5CC995; --warn: #E7B25A; --muted-bg: #1C2E48; --digit-bg: #DCE6F4; --digit-fg: #0E1A2C;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 16px/1.7 var(--body); }
+.wrap { max-width: 780px; margin: 0 auto; padding: 0 16px; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--seal); outline-offset: 2px; border-radius: 4px; }
+
+/* header */
+.top { position: sticky; top: 0; z-index: 5; background: var(--paper); border-bottom: 1px solid var(--line); }
+.brand { margin: 0; padding: 12px 0 4px; font: 700 20px/1.3 var(--num); }
+.brand span { font: 400 13px var(--body); color: var(--ink-soft); margin-left: 6px; }
+.tabs { display: flex; gap: 4px; overflow-x: auto; padding: 6px 0 10px; scrollbar-width: none; }
+.tabs a { flex: none; text-decoration: none; padding: 6px 12px; border-radius: 999px; font-size: 14px; color: var(--ink-soft); }
+.tabs a[aria-current="page"] { background: var(--ink); color: var(--paper); }
+
+main { padding-top: 20px; min-height: 60vh; }
+h1 { font: 700 26px/1.3 var(--num); margin: 0 0 4px; }
+h2 { font: 600 20px/1.35 var(--num); margin: 36px 0 10px; }
+h3 { font: 600 16px/1.4 var(--body); margin: 20px 0 6px; }
+p { margin: 0 0 10px; max-width: 68ch; }
+.sub { color: var(--ink-soft); font-size: 14px; }
+.loading, .empty { color: var(--ink-soft); padding: 40px 0; }
+
+/* the sealed prediction — the one memorable element */
+.sealed { position: relative; background: var(--card); border: 2px solid var(--ink); border-radius: 18px; padding: 22px 18px 18px; margin: 16px 0 8px; }
+.seal { position: absolute; top: -14px; right: 16px; background: var(--seal); color: #fff; font: 600 13px/1 var(--num); padding: 8px 12px; border-radius: 999px; }
+.row { display: grid; grid-template-columns: 120px 1fr; gap: 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+.row:first-of-type { border-top: 0; }
+.row > span { font-size: 14px; color: var(--ink-soft); }
+.nums { display: flex; flex-wrap: wrap; gap: 8px; }
+.num { font: 700 26px/1 var(--num); letter-spacing: .06em; padding: 9px 12px 8px; border-radius: 10px; background: var(--muted-bg); font-variant-numeric: tabular-nums; }
+.num.lead { background: var(--digit-bg); color: var(--digit-fg); }
+.nums.small .num { font-size: 18px; padding: 6px 9px; font-weight: 600; }
+.opp { display: grid; gap: 8px; }
+.opp small { display: block; font-size: 12px; color: var(--ink-soft); margin-bottom: 2px; }
+.lockmeta { margin-top: 12px; font-size: 13px; color: var(--ink-soft); display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.lockmeta code { font: 500 13px var(--num); color: var(--ink); }
+
+/* tables */
+.tbl { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.tbl th, .tbl td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.tbl th { font-weight: 600; background: var(--muted-bg); }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl td.n { font: 600 15px var(--num); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tbl tr.baseline td { background: var(--muted-bg); }
+.scroll { overflow-x: auto; margin: 8px 0 4px; -webkit-overflow-scrolling: touch; }
+.scroll .tbl { min-width: 520px; }
+
+.badge { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
+.b-verified { color: var(--ok); }
+.b-single { color: var(--ink-soft); }
+.b-majority { color: var(--warn); }
+.b-conflict, .b-suspect { color: var(--seal); }
+.b-no_draw, .b-pending { color: var(--ink-soft); border-style: dashed; }
+.hit { color: var(--ok); font-weight: 600; }
+.miss { color: var(--ink-soft); }
+
+ul.notes { padding-left: 20px; margin: 6px 0; }
+ul.notes li { margin: 4px 0; max-width: 68ch; }
+
+details.model { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin: 10px 0; }
+details.model summary { cursor: pointer; list-style: none; display: grid; grid-template-columns: 40px 1fr auto; gap: 8px; align-items: baseline; }
+details.model summary::-webkit-details-marker { display: none; }
+details.model .id { font: 700 18px var(--num); }
+details.model .w { font-size: 13px; color: var(--ink-soft); }
+details.model dl { display: grid; grid-template-columns: 110px 1fr; gap: 4px 12px; margin: 12px 0 0; font-size: 14px; }
+details.model dt { color: var(--ink-soft); }
+details.model dd { margin: 0; }
+
+.callout { border-left: 4px solid var(--warn); background: var(--card); padding: 10px 14px; border-radius: 0 10px 10px 0; margin: 12px 0; font-size: 15px; }
+
+.foot { padding-top: 40px; padding-bottom: 40px; font-size: 13px; color: var(--ink-soft); }
+
+@media (max-width: 520px) {
+  .row { grid-template-columns: 1fr; gap: 6px; }
+  .num { font-size: 22px; }
+  h1 { font-size: 22px; }
+  details.model dl { grid-template-columns: 1fr; }
+  details.model dt { margin-top: 6px; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
