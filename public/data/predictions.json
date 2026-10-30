@@ -1,13 +1,211 @@
 {
-  "builtAt": "2026-10-30T13:09:02.426Z",
+  "builtAt": "2026-10-30T14:32:00.790Z",
   "entries": [
+    {
+      "date": "2026-11-02",
+      "lockedAt": "2026-10-30T14:32:00.790Z",
+      "onTime": true,
+      "hash": "24e7cbed1cd6e226",
+      "status": "pending"
+    },
     {
       "date": "2026-10-30",
       "drawDate": "2026-10-30",
       "lockedAt": "2026-10-30T04:16:01.732Z",
       "onTime": true,
       "hash": "e00a46aaa72e1144",
-      "status": "pending"
+      "status": "verified",
+      "actual": {
+        "top3": "206",
+        "top2": "06",
+        "bottom2": "32"
+      },
+      "scores": {
+        "R1": {
+          "top3": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 2,
+            "n": 5,
+            "k": 1
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "R2": {
+          "top3": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "R4": {
+          "top3": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "R5": {
+          "top3": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 2,
+            "n": 5,
+            "k": 1
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "R6": {
+          "top3": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 2,
+            "n": 5,
+            "k": 1
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "R7": {
+          "top3": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": true,
+            "posBest": 2,
+            "commonTop": null,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "ENSEMBLE": {
+          "top3": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "OPPOSITE": {
+          "top3": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          }
+        }
+      }
     }
   ]
 }
