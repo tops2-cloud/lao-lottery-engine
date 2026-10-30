@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>ลาวพัฒนา วิเคราะห์ย้อนหลัง</title>
-  <meta name="description" content="ระบบวิเคราะห์หวยลาวพัฒนา ล็อกคำทำนายก่อนผลออกและตรวจย้อนหลังเทียบการสุ่ม">
+  <title>หวยลาว หวยไทย วิเคราะห์ย้อนหลัง</title>
+  <meta name="description" content="ระบบวิเคราะห์หวยลาวพัฒนาและสลากกินแบ่งรัฐบาล ล็อกคำทำนายก่อนผลออกและตรวจย้อนหลังเทียบการสุ่ม">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
@@ -14,14 +14,17 @@
 <body>
   <header class="top">
     <div class="wrap">
-      <p class="brand">ลาวพัฒนา <span>ระบบวิเคราะห์ที่ตรวจสอบย้อนหลังได้</span></p>
+      <nav class="markets" aria-label="เลือกหวย">
+        <a href="#lao/predict" data-market="lao">หวยลาว</a>
+        <a href="#thai/predict" data-market="thai">หวยไทย</a>
+      </nav>
       <nav class="tabs" aria-label="ส่วนของแอป">
-        <a href="#predict" data-view="predict">คำทำนาย</a>
-        <a href="#models" data-view="models">8 โมเดล</a>
-        <a href="#backtest" data-view="backtest">Backtest</a>
-        <a href="#history" data-view="history">ผลย้อนหลัง</a>
-        <a href="#quality" data-view="quality">คุณภาพข้อมูล</a>
-        <a href="#archive" data-view="archive">คำทำนายที่ล็อก</a>
+        <a href="#lao/predict" data-view="predict">คำทำนาย</a>
+        <a href="#lao/models" data-view="models">8 โมเดล</a>
+        <a href="#lao/backtest" data-view="backtest">Backtest</a>
+        <a href="#lao/history" data-view="history">ผลย้อนหลัง</a>
+        <a href="#lao/quality" data-view="quality">คุณภาพข้อมูล</a>
+        <a href="#lao/archive" data-view="archive">คำทำนายที่ล็อก</a>
       </nav>
     </div>
   </header>
@@ -31,7 +34,8 @@
   </main>
 
   <footer class="wrap foot">
-    <p>ผลหวยออกแบบสุ่ม ระบบนี้มีไว้ทดสอบว่าวิธีวิเคราะห์ใดทำได้ดีกว่าการสุ่มหรือไม่ ไม่ใช่คำแนะนำให้ซื้อ การซื้อหวยต่างประเทศในไทยผิดกฎหมาย</p>
+    <p>ผลหวยออกแบบสุ่ม ระบบนี้มีไว้ทดสอบว่าวิธีวิเคราะห์ใดทำได้ดีกว่าการสุ่มหรือไม่ ไม่ใช่คำแนะนำให้ซื้อ</p>
+    <p id="legal">การซื้อหวยต่างประเทศในไทยผิดกฎหมาย</p>
     <p id="built"></p>
   </footer>
 

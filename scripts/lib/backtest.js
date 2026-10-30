@@ -1,6 +1,6 @@
 'use strict';
 
-const { CATS, N_PICKS, runModels, ensemble, pad } = require('./models');
+const { CAT_DEF, DEFAULT_CATS, N_PICKS, runModels, ensemble, pad, values } = require('./models');
 
 // Seeded PRNG (mulberry32) so the random baseline is reproducible.
 function rng(seed) {
@@ -13,9 +13,10 @@ function rng(seed) {
   };
 }
 
-function randomPicks(rand) {
+function randomPicks(rand, cats = DEFAULT_CATS) {
   const out = {};
-  for (const [c, { width }] of Object.entries(CATS)) {
+  for (const c of cats) {
+    const { width } = CAT_DEF[c];
     const s = new Set();
     while (s.size < N_PICKS) s.add(pad(Math.floor(rand() * 10 ** width), width));
     out[c] = [...s];
@@ -31,20 +32,20 @@ function multisetCommon(a, b) {
   return n;
 }
 
-// Score one model's picks against an actual result.
-// exact     – one of the picks equals the result
+// Score picks against an actual result. A category can hold several winning numbers
+// (Thai 3 ตัวล่าง has four); a pick counts as exact if it equals any of them.
+// exact     – one of the picks equals a winning number
 // posBest   – most digits matched in the right position by any pick
-// commonTop – digits in common (any position) between the FIRST pick and the result, when not exact
-function scorePicks(picks, actual) {
+// commonTop – digits in common (any position) between the FIRST pick and the closest winning number, when not exact
+function scorePicks(picks, actual, cats = Object.keys(picks)) {
   const out = {};
-  for (const c of Object.keys(CATS)) {
+  for (const c of cats) {
     const list = picks[c] || [];
-    const a = actual[c];
-    if (!list.length || !a) { out[c] = null; continue; }
-    const exact = list.includes(a);
-    const posBest = Math.max(...list.map((p) => p.split('').filter((ch, i) => ch === a[i]).length));
-    const first = list[0];
-    out[c] = { exact, posBest, commonTop: exact ? null : multisetCommon(first, a), n: list.length };
+    const win = values(actual, c);
+    if (!list.length || !win.length) { out[c] = null; continue; }
+    const exact = list.some((p) => win.includes(p));
+    const posBest = Math.max(...list.flatMap((p) => win.map((a) => p.split('').filter((ch, i) => ch === a[i]).length)));
+    out[c] = { exact, posBest, commonTop: exact ? null : Math.max(...win.map((a) => multisetCommon(list[0], a))), n: list.length, k: win.length };
   }
   return out;
 }
@@ -60,27 +61,26 @@ function binomTail(k, n, p) {
   return Math.min(1, tail);
 }
 
+// Chance that n random distinct picks hit at least one of k winning numbers.
+const chance = (n, k, width) => 1 - (1 - n / 10 ** width) ** k;
+
 function summarize(rows) {
-  // rows: [{ model, cat, score }]
   const agg = {};
   for (const { model, cat, score } of rows) {
     if (!score) continue;
-    const k = `${model}|${cat}`;
-    const a = (agg[k] ||= { model, cat, tests: 0, hits: 0, posSum: 0, commonSum: 0, commonN: 0, n: score.n });
+    const key = `${model}|${cat}`;
+    const a = (agg[key] ||= { model, cat, tests: 0, hits: 0, posSum: 0, commonSum: 0, commonN: 0, expSum: 0 });
     a.tests++; a.hits += score.exact ? 1 : 0; a.posSum += score.posBest;
+    a.expSum += chance(score.n, score.k || 1, CAT_DEF[cat].width);
     if (score.commonTop !== null) { a.commonSum += score.commonTop; a.commonN++; }
   }
   return Object.values(agg).map((a) => {
-    const width = CATS[a.cat].width;
-    const expected = a.n / 10 ** width;
+    const expected = a.tests ? a.expSum / a.tests : 0;
     return {
-      model: a.model,
-      cat: a.cat,
-      tests: a.tests,
-      hits: a.hits,
+      model: a.model, cat: a.cat, tests: a.tests, hits: a.hits,
       rate: a.tests ? a.hits / a.tests : 0,
       expectedRate: expected,
-      vsRandom: a.tests ? a.hits / a.tests / expected : 0,
+      vsRandom: a.tests && expected ? a.hits / a.tests / expected : 0,
       pValue: binomTail(a.hits, a.tests, expected),
       avgPosMatched: a.tests ? a.posSum / a.tests : 0,
       avgCommonDigits: a.commonN ? a.commonSum / a.commonN : 0,
@@ -89,7 +89,7 @@ function summarize(rows) {
 }
 
 // Walk-forward: for each target draw, models see only earlier usable draws.
-function walkForward(draws, { minHistory = 30, maxTests = Infinity, seed = 20261030 } = {}) {
+function walkForward(draws, { minHistory = 30, maxTests = Infinity, seed = 20261030, cats = DEFAULT_CATS, groupWindow } = {}) {
   const usable = draws.filter((d) => d.usable);
   const rand = rng(seed);
   const rows = [];
@@ -97,12 +97,11 @@ function walkForward(draws, { minHistory = 30, maxTests = Infinity, seed = 20261
   for (let i = start; i < usable.length; i++) {
     const target = usable[i];
     const history = usable.slice(0, i);
-    const models = runModels(history, target, null);
-    const ens = ensemble(models);
-    const actual = { top3: target.top3, top2: target.top2, bottom2: target.bottom2 };
-    for (const m of models) if (!m.empty) for (const [cat, s] of Object.entries(scorePicks(m.picks, actual))) rows.push({ model: m.id, cat, score: s });
-    for (const [cat, s] of Object.entries(scorePicks(ens.picks, actual))) rows.push({ model: 'ENSEMBLE', cat, score: s });
-    for (const [cat, s] of Object.entries(scorePicks(randomPicks(rand), actual))) rows.push({ model: 'RANDOM', cat, score: s });
+    const models = runModels(history, target, null, cats, { groupWindow });
+    const ens = ensemble(models, undefined, cats);
+    for (const m of models) if (!m.empty) for (const [cat, s] of Object.entries(scorePicks(m.picks, target, cats))) rows.push({ model: m.id, cat, score: s });
+    for (const [cat, s] of Object.entries(scorePicks(ens.picks, target, cats))) rows.push({ model: 'ENSEMBLE', cat, score: s });
+    for (const [cat, s] of Object.entries(scorePicks(randomPicks(rand, cats), target, cats))) rows.push({ model: 'RANDOM', cat, score: s });
   }
   const summary = summarize(rows);
   // Many model×category pairs are tested at once, so a few small p-values appear by
@@ -112,4 +111,4 @@ function walkForward(draws, { minHistory = 30, maxTests = Infinity, seed = 20261
   return { tests: usable.length - start, from: usable[start]?.date, to: usable[usable.length - 1]?.date, comparisons: m, summary };
 }
 
-module.exports = { scorePicks, summarize, walkForward, binomTail, randomPicks, rng };
+module.exports = { scorePicks, summarize, walkForward, binomTail, randomPicks, rng, chance };

@@ -77,3 +77,54 @@ test('scrapers parse the layouts seen on 2026-10-30', () => {
   assert.deepStrictEqual(ph.dates, ['2024-01-03', '2026-10-28']);
   assert.deepStrictEqual(parsePhonhuayDraw('<p>เลขท้าย 4 ตัว คือ 7592</p>'), { last4: '7592' });
 });
+
+// ---------------------------------------------------------------- Thai
+const { MARKETS, normalizeThai, thaiNextDate } = require('../scripts/lib/markets');
+const { parseArchiveFile, parseLottothGov } = require('../scripts/lib/scrape');
+const { chance } = require('../scripts/lib/backtest');
+
+test('Thai archive file parses with Windows line endings', () => {
+  const r = parseArchiveFile('http://x\r\nFIRST 011781\r\nTHREE_FIRST 392 402\r\nTHREE_LAST 171 255\r\nTWO 48\r\n');
+  assert.deepStrictEqual(r, { first: '011781', two: '48', front3: ['392', '402'], last3: ['171', '255'] });
+  const n = normalizeThai(r);
+  assert.strictEqual(n.top3, '781'); assert.strictEqual(n.top2, '81'); assert.strictEqual(n.bottom2, '48');
+  assert.deepStrictEqual(n.bottom3, ['392', '402', '171', '255']);
+});
+
+test('Thai merge: LottoTH confirms top3/bottom2, archive supplies 3 ตัวล่าง', () => {
+  const d = mergeSources({
+    archive: { '2026-10-16': { first: '011781', two: '48', front3: ['392', '402'], last3: ['171', '255'] } },
+    lottoth: { '2026-10-16': { full: '011781', top3: '781', bottom2: '48' } },
+  }, MARKETS.thai);
+  assert.strictEqual(d[0].status, 'verified');
+  assert.deepStrictEqual(d[0].bottom3, ['392', '402', '171', '255']);
+  assert.strictEqual(d[0].group, 'mid');
+});
+
+test('3 ตัวล่าง: a pick hits if it matches any of the four numbers', () => {
+  const s = scorePicks({ bottom3: ['171', '000'] }, { bottom3: ['392', '402', '171', '255'] }, ['bottom3']);
+  assert.strictEqual(s.bottom3.exact, true);
+  assert.ok(Math.abs(chance(5, 4, 3) - 0.0199) < 0.0005);
+});
+
+test('Thai schedule: 1st/16th with the yearly shifts, and waits for a late result', () => {
+  assert.strictEqual(thaiNextDate('2026-10-16'), '2026-11-01');
+  assert.strictEqual(thaiNextDate('2026-11-01'), '2026-11-16');
+  assert.strictEqual(thaiNextDate('2026-12-16'), '2027-01-02');
+  assert.strictEqual(thaiNextDate('2027-01-02'), '2027-01-17');
+  assert.strictEqual(thaiNextDate('2027-04-16'), '2027-05-02');
+  assert.strictEqual(MARKETS.thai.nextTarget([{ date: '2026-10-16' }], '2026-11-02'), null);
+});
+
+test('LottoTH government parser reads columns by shape', () => {
+  const r = parseLottothGov('<table><tr><td><a href="/lottery/goverment/2026-10-16">16 ต.ค.</a></td><td>781</td><td>48</td><td>011781</td></tr></table>');
+  assert.deepStrictEqual(r, { '2026-10-16': { full: '011781', top3: '781', bottom2: '48' } });
+});
+
+test('Thai models cover all four categories', () => {
+  const mk = (i) => { const f = String((i * 7919) % 1000000).padStart(6, '0'); return { date: `2020-01-${String((i % 28) + 1).padStart(2, '0')}`, group: i % 2 ? 'early' : 'mid', top3: f.slice(3), top2: f.slice(4), bottom2: f.slice(0, 2), bottom3: [f.slice(0, 3), f.slice(1, 4), f.slice(2, 5), f.slice(3)], usable: true }; };
+  const hist = Array.from({ length: 80 }, (_, i) => mk(i));
+  const cats = MARKETS.thai.cats;
+  const ens = ensemble(runModels(hist, { date: '2026-11-01', group: 'early', groupTh: 'งวดต้นเดือน' }, null, cats), undefined, cats);
+  for (const c of cats) assert.strictEqual(ens.picks[c].length, 5);
+});
