@@ -75,14 +75,14 @@ p { margin: 0 0 10px; max-width: 68ch; }
 .r-head b { font: 600 16px/1.3 var(--num); }
 .r-nums { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 6px 0; }
 .r-nums small { display: block; font-size: 12px; color: var(--ink-soft); line-height: 1.2; }
-.t-nums { display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; margin: 6px 0; }
+.t-nums { display: grid; grid-template-columns: 1fr auto; gap: 2px 16px; margin: 4px 0; }
 .t-nums small { display: block; font-size: 12px; color: var(--ink-soft); line-height: 1.2; }
-.t-nums b { font: 700 20px/1.2 var(--num); letter-spacing: .04em; font-variant-numeric: tabular-nums; word-spacing: .25em; }
-.t-nums .t-first b, .t-nums .t-two b { font-size: 28px; }
+.t-nums b { font: 700 17px/1.2 var(--num); letter-spacing: .04em; font-variant-numeric: tabular-nums; word-spacing: .25em; }
+.t-nums .t-first b, .t-nums .t-two b { font-size: 22px; }
 .t-nums .t-first b { letter-spacing: .08em; }
 .r-nums .multi { grid-column: 1 / -1; }
 .r-nums .multi b { font-size: 20px; word-spacing: .2em; }
-.r-nums b { font: 700 26px/1.15 var(--num); letter-spacing: .04em; font-variant-numeric: tabular-nums; }
+.r-nums b { font: 700 22px/1.15 var(--num); letter-spacing: .04em; font-variant-numeric: tabular-nums; }
 .cmp { border-top: 1px solid var(--line); padding-top: 4px; }
 .cmp-row { display: flex; align-items: center; gap: 4px; padding: 2px 0; flex-wrap: wrap; }
 .cmp-row .lbl { width: 56px; font-size: 12px; color: var(--ink-soft); }
@@ -137,9 +137,15 @@ details.model dd { margin: 0; }
 .foot { padding-top: 40px; padding-bottom: 40px; font-size: 13px; color: var(--ink-soft); }
 
 @media (max-width: 520px) {
-  .num { font-size: 17px; padding: 5px 7px 4px; }
-  .row { grid-template-columns: 64px 1fr; }
-  .r-nums b { font-size: 24px; }
+  .num { font-size: 15px; padding: 5px 5px 4px; letter-spacing: .02em; border-radius: 6px; }
+  .nums { gap: 4px; }
+  .nums.small .num { font-size: 13px; padding: 2px 4px; }
+  .row { grid-template-columns: 58px 1fr; gap: 6px; padding: 5px 0; }
+  .row > span { font-size: 12px; }
+  .r-nums b { font-size: 20px; }
+  .t-nums .t-first b, .t-nums .t-two b { font-size: 20px; }
+  .t-nums b { font-size: 16px; }
+  .sealed, .result { padding-left: 12px; padding-right: 12px; }
   .r-nums .multi b { font-size: 18px; }
   h1 { font-size: 22px; }
   details.model dl { grid-template-columns: 1fr; }

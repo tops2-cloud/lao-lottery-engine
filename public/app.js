@@ -79,13 +79,12 @@ async function latestResultBlock(res, cats, latestPred) {
   const entry = idx?.entries?.find((e) => (e.drawDate || e.date) === d.date && e.actual);
   const pred = entry ? await load(`predictions/${entry.date}`) : await load(`predictions/${d.date}`);
   const cmp = pred ? `<div class="cmp">${cats.map((c) => pickRow(CAT_TH[c], pred.final[c] || [], vals(d[c]))).join('')}</div>` : '';
-  const extra = market === 'lao' && d.last4 ? `เลขท้าย 4 ตัว ${esc(d.last4)} · ` : '';
   return `${waiting}
     <section class="result" aria-label="ผลงวดล่าสุด">
       <div class="r-head"><b>ผลงวด ${esc(fmtDate(d.date))}</b>${badge(d.status)}</div>
       ${market === 'thai' ? thaiNums(d) : laoNums(d, cats)}
       ${cmp}
-      <p class="tiny">${extra}ยืนยันจาก ${d.voters.map((s) => esc(res.sources[s]?.name || s)).join(', ') || '–'}${pred ? ` · เทียบชุดที่ล็อก ${esc(fmtTime(pred.lockedAt))}` : ''}</p>
+      ${market === 'lao' && d.last4 ? `<p class="tiny">เลขท้าย 4 ตัว ${esc(d.last4)}</p>` : ''}
     </section>`;
 }
 
