@@ -1,0 +1,67 @@
+name: Daily results & locked prediction
+
+on:
+  schedule:
+    # หวยลาว: Mon–Fri 20:30 Bangkok (13:30 UTC)
+    - cron: '38 13 * * 1-5'
+    - cron: '52 13 * * 1-5'
+    - cron: '23 14 * * 1-5'
+    - cron: '07 15 * * 1-5'
+    - cron: '37 1 * * 1-5'
+    # หวยไทย: วันที่ 1 / 16 ช่วงบ่าย
+    - cron: '23 9 * * *'
+    - cron: '47 10 * * *'
+    - cron: '13 12 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Tests
+        run: node --test test/*.test.js
+
+      - name: Thai results archive (full copy, no API limits)
+        run: |
+          git clone --depth 1 -q https://github.com/vicha-w/thai-lotto-archive.git "$RUNNER_TEMP/tla"
+          node scripts/import-thai-archive.js "$RUNNER_TEMP/tla"
+
+      - name: Fetch results from sites
+        run: node scripts/fetch-results.js --backfill
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Build data, score and lock prediction
+        run: node scripts/build.js
+
+      - name: Refuse to change an already-locked prediction
+        run: |
+          changed=$(git diff --name-only --diff-filter=MD -- predictions/)
+          if [ -n "$changed" ]; then
+            echo "::error::Locked prediction files were modified: $changed"
+            exit 1
+          fi
+
+      - name: Commit
+        run: |
+          git config user.name "lao-lottery-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data predictions public/data
+          if git diff --cached --quiet; then
+            echo "Nothing new."
+          else
+            git commit -m "update $(TZ=Asia/Bangkok date '+%Y-%m-%d %H:%M') BKK"
+            git push
+          fi
