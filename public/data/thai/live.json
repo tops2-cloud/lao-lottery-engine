@@ -1,5 +1,267 @@
 {
-  "builtAt": "2026-11-01T11:19:40.877Z",
+  "builtAt": "2026-11-01T13:00:00.457Z",
   "note": "นับเฉพาะคำทำนายที่ล็อกก่อน 14:00 น. ของวันออกผล",
-  "entries": []
+  "entries": [
+    {
+      "date": "2026-11-01",
+      "drawDate": "2026-11-01",
+      "lockedAt": "2026-10-30T10:56:00.772Z",
+      "onTime": true,
+      "hash": "25557fbce2bcf7e3",
+      "status": "single",
+      "actual": {
+        "top3": "224",
+        "bottom3": [
+          "300",
+          "950",
+          "393",
+          "804"
+        ],
+        "top2": "24",
+        "bottom2": "85"
+      },
+      "scores": {
+        "R1": {
+          "top3": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          },
+          "bottom3": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 2,
+            "n": 5,
+            "k": 4
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "R2": {
+          "top3": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "bottom3": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 0,
+            "n": 5,
+            "k": 4
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "R4": {
+          "top3": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          },
+          "bottom3": {
+            "exact": false,
+            "posBest": 2,
+            "commonTop": 1,
+            "n": 5,
+            "k": 4
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": true,
+            "posBest": 2,
+            "commonTop": null,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "R5": {
+          "top3": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 2,
+            "n": 5,
+            "k": 1
+          },
+          "bottom3": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 2,
+            "n": 5,
+            "k": 4
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 2,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "R6": {
+          "top3": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "bottom3": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 2,
+            "n": 5,
+            "k": 4
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "R7": {
+          "top3": {
+            "exact": false,
+            "posBest": 2,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          },
+          "bottom3": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 2,
+            "n": 5,
+            "k": 4
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": true,
+            "posBest": 2,
+            "commonTop": null,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "ENSEMBLE": {
+          "top3": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "bottom3": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 2,
+            "n": 5,
+            "k": 4
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "OPPOSITE": {
+          "top3": {
+            "exact": false,
+            "posBest": 2,
+            "commonTop": 2,
+            "n": 5,
+            "k": 1
+          },
+          "bottom3": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 1,
+            "n": 5,
+            "k": 4
+          },
+          "top2": {
+            "exact": true,
+            "posBest": 2,
+            "commonTop": null,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          }
+        }
+      }
+    }
+  ]
 }

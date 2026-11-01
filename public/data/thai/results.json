@@ -1,5 +1,5 @@
 {
-  "builtAt": "2026-11-01T11:19:40.877Z",
+  "builtAt": "2026-11-01T13:00:00.457Z",
   "market": {
     "id": "thai",
     "name": "หวยไทย",
@@ -26,9 +26,44 @@
     }
   },
   "counts": {
-    "single": 265
+    "single": 266
   },
   "draws": [
+    {
+      "date": "2026-11-01",
+      "weekday": 0,
+      "weekdayTh": "อาทิตย์",
+      "group": "early",
+      "groupTh": "งวดต้นเดือน",
+      "status": "single",
+      "usable": true,
+      "top3": "224",
+      "top2": "24",
+      "bottom2": "85",
+      "first": "423224",
+      "bottom3": [
+        "300",
+        "950",
+        "393",
+        "804"
+      ],
+      "front3": [
+        "300",
+        "950"
+      ],
+      "last3": [
+        "393",
+        "804"
+      ],
+      "sources": {
+        "archive": "224/85"
+      },
+      "voters": [
+        "archive"
+      ],
+      "independentSources": 1,
+      "issues": []
+    },
     {
       "date": "2026-10-16",
       "weekday": 5,
