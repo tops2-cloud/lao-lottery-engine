@@ -176,8 +176,10 @@ async function viewPredict() {
       </table></div>
     </details>
     <div class="more">
-      <a class="btn" href="#${market}/models">${market === 'lao' ? 'B. ' : ''}ดูผลแยก 8 โมเดล</a>
-      <a class="btn" href="#${market}/backtest">ดู Backtest</a>
+      <a class="btn" href="#${market}/models">8 โมเดล</a>
+      <a class="btn" href="#${market}/backtest">Backtest</a>
+      <a class="btn" href="#${market}/archive">คำทำนายที่ล็อกไว้</a>
+      <a class="btn" href="#${market}/quality">คุณภาพข้อมูล</a>
     </div>`;
 }
 
@@ -187,7 +189,7 @@ async function viewModels() {
   const cats = await catsOf();
   const w = p.ensemble.weights;
   const used = new Set(p.ensemble.used);
-  const head = `<a class="back" href="#${market}/predict">‹ กลับไปคำทำนาย</a><h1>${market === 'lao' ? 'B. ' : ''}ผลแยก 8 โมเดล</h1><p class="sub">งวด${esc(fmtDate(p.target.date))} ทุกโมเดลเห็นเฉพาะข้อมูลก่อนงวดนี้</p>`;
+  const head = `<a class="back" href="#${market}/predict">‹ กลับไปคำทำนาย</a><h1>ผลแยก 8 โมเดล</h1><p class="sub">งวด${esc(fmtDate(p.target.date))} ทุกโมเดลเห็นเฉพาะข้อมูลก่อนงวดนี้</p>`;
   const table = `<div class="scroll"><table class="tbl">
     <thead><tr><th>โมเดล</th>${cats.map((c) => `<th>${CAT_TH[c]}</th>`).join('')}<th>น้ำหนัก</th></tr></thead>
     <tbody>
@@ -294,7 +296,7 @@ async function viewQuality() {
   const note = market === 'lao'
     ? 'Victory Gold Arena อ้างอิง LottoTH จึงนับเป็นแหล่งเดียวกัน ไม่ใช้ยืนยันซ้ำ'
     : 'งวดย้อนหลังมาจากคลัง thai-lotto-archive ซึ่งรวบรวมจาก sanook และ kapook ส่วนงวดใหม่จะตรวจทานกับ LottoTH (เฉพาะ 3 ตัวบนและ 2 ตัวล่าง)';
-  return `<h1>คุณภาพข้อมูล</h1>
+  return `<a class="back" href="#${market}/predict">‹ กลับไปคำทำนาย</a><h1>คุณภาพข้อมูล</h1>
     <ul class="notes">
       <li>${c.verified || 0} งวดยืนยันจากแหล่งอิสระ 2 แหล่งขึ้นไป</li>
       <li>${c.single || 0} งวดมีแหล่งเดียว ใช้ได้แต่ยังไม่ได้ตรวจทาน</li>
@@ -314,7 +316,7 @@ async function viewArchive() {
   const cats = await catsOf();
   const list = idx?.entries || [];
   const close = r?.market?.close || '20:15';
-  return `<h1>คำทำนายที่ล็อกไว้</h1>
+  return `<a class="back" href="#${market}/predict">‹ กลับไปคำทำนาย</a><h1>คำทำนายที่ล็อกไว้</h1>
     <p>ทุกไฟล์ถูก commit ลง GitHub ก่อนผลออก เวลา commit และรหัสตรวจสอบแก้ย้อนหลังไม่ได้ ระบบนับผลเฉพาะไฟล์ที่ล็อกก่อน ${esc(close)} น. ของวันออกผล</p>
     ${list.length ? `<div class="scroll tight"><table class="tbl compact"><thead><tr><th>งวด</th><th>ล็อกเมื่อ</th><th>ผล</th><th>ชุดสรุป</th><th>ไฟล์</th></tr></thead><tbody>
       ${list.map((e) => {
@@ -341,7 +343,7 @@ async function route() {
   });
   document.querySelectorAll('.tabs a').forEach((a) => {
     a.href = `#${mk}/${a.dataset.view}`;
-    const tab = view === 'models' || view === 'backtest' ? 'predict' : view;
+    const tab = view === 'history' ? 'history' : 'predict';
     if (a.dataset.view === tab) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   });
   document.getElementById('legal').hidden = mk !== 'lao';
