@@ -169,3 +169,29 @@ details.model dd { margin: 0; }
   details.model dt { margin-top: 6px; }
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+
+/* buttons to detail pages */
+.more { display: flex; gap: 8px; margin: 12px 0 4px; }
+.btn { flex: 1; text-align: center; text-decoration: none; padding: 9px 10px; border: 1px solid var(--ink); border-radius: 10px; font: 600 14px/1.3 var(--num); background: var(--card); }
+.back { display: inline-block; text-decoration: none; font-size: 14px; color: var(--ink-soft); margin-bottom: 6px; }
+
+/* history table: fits a phone, no sideways scroll */
+.tbl.hist { font-size: 13px; table-layout: auto; }
+.tbl.hist th, .tbl.hist td { padding: 5px 4px; vertical-align: middle; }
+.tbl.hist th:first-child, .tbl.hist td:first-child { padding-left: 8px; }
+.tbl.hist td.dt { white-space: nowrap; line-height: 1.25; }
+.tbl.hist td.dt small { display: block; font-size: 11px; color: var(--ink-soft); }
+.tbl.hist td.n { font-size: 15px; }
+.tbl.hist td.m3 { font-size: 13px; line-height: 1.35; white-space: nowrap; }
+.tbl.hist td.st { text-align: center; width: 1%; }
+
+.tbl.hist td.st { min-width: 14px; padding-right: 6px; }
+.tbl.hist td.st .badge { font-size: 10px; padding: 0 4px; }
+@media (max-width: 400px) {
+  .tbl.hist td.n { font-size: 14px; }
+  .tbl.hist td.m3 { font-size: 12px; }
+  .tbl.hist th, .tbl.hist td { padding: 5px 3px; }
+}
+/* all main tabs fit on one line */
+.tabs { overflow: visible; }
+.tabs a { flex: 1 1 auto; text-align: center; padding: 5px 6px; font-size: 13.5px; white-space: nowrap; }

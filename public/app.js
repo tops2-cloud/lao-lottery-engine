@@ -19,6 +19,7 @@ let market = 'lao';
 const M = () => MARKETS[market];
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const TH_MON = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 const pct = (x, d = 1) => `${(x * 100).toFixed(d)}%`;
 const fmtDate = (iso) => new Intl.DateTimeFormat('th-TH', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${iso}T00:00:00Z`));
 const fmtTime = (iso) => new Intl.DateTimeFormat('th-TH', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Bangkok' }).format(new Date(iso));
@@ -174,7 +175,10 @@ async function viewPredict() {
         <tbody>${p.A.recent.map((d) => `<tr><td>${esc(fmtDate(d.date))}</td>${cats.map((c) => `<td class="n${Array.isArray(d[c]) ? ' multi' : ''}">${show(d[c])}</td>`).join('')}<td>${d.status === 'verified' ? '<span class="hit" title="ยืนยัน 2+ แหล่ง">✓</span>' : badge(d.status)}</td></tr>`).join('')}</tbody>
       </table></div>
     </details>
-    <p class="tiny">${market === 'lao' ? 'B. ' : ''}ตารางแยกแต่ละโมเดลอยู่ที่แท็บ <a href="#${market}/models">8 โมเดล</a></p>`;
+    <div class="more">
+      <a class="btn" href="#${market}/models">${market === 'lao' ? 'B. ' : ''}ดูผลแยก 8 โมเดล</a>
+      <a class="btn" href="#${market}/backtest">ดู Backtest</a>
+    </div>`;
 }
 
 async function viewModels() {
@@ -183,7 +187,7 @@ async function viewModels() {
   const cats = await catsOf();
   const w = p.ensemble.weights;
   const used = new Set(p.ensemble.used);
-  const head = `<h1>${market === 'lao' ? 'B. ' : ''}ผลแยก 8 โมเดล</h1><p class="sub">งวด${esc(fmtDate(p.target.date))} ทุกโมเดลเห็นเฉพาะข้อมูลก่อนงวดนี้</p>`;
+  const head = `<a class="back" href="#${market}/predict">‹ กลับไปคำทำนาย</a><h1>${market === 'lao' ? 'B. ' : ''}ผลแยก 8 โมเดล</h1><p class="sub">งวด${esc(fmtDate(p.target.date))} ทุกโมเดลเห็นเฉพาะข้อมูลก่อนงวดนี้</p>`;
   const table = `<div class="scroll"><table class="tbl">
     <thead><tr><th>โมเดล</th>${cats.map((c) => `<th>${CAT_TH[c]}</th>`).join('')}<th>น้ำหนัก</th></tr></thead>
     <tbody>
@@ -248,7 +252,7 @@ async function viewBacktest() {
   }
   const liveRows = Object.values(liveAgg);
 
-  return `<h1>Backtest</h1>
+  return `<a class="back" href="#${market}/predict">‹ กลับไปคำทำนาย</a><h1>Backtest</h1>
     <div class="callout">${sigAny ? 'มีบางรายการดีกว่าสุ่มหลังปรับค่า p แล้ว แต่ต้องรอยืนยันจากคำทำนายที่ล็อกจริงก่อนจะเชื่อ' : `หลังทดสอบ ${bt.tests} งวด ไม่มีโมเดลใดดีกว่าการสุ่มอย่างมีนัยสำคัญ (ปรับค่า p สำหรับการทดสอบ ${bt.comparisons} รายการพร้อมกัน) ลองดูแถว "สุ่ม" ซึ่งบางหมวดก็ได้อัตราสูงเพราะโชค`}</div>
     <p class="sub">${esc(bt.method)} ช่วง ${esc(fmtDate(bt.from))} ถึง ${esc(fmtDate(bt.to))}</p>
     ${cats.map(tbl).join('')}
@@ -265,15 +269,21 @@ async function viewHistory() {
   const r = await load('results');
   if (!r) return '<p class="empty">ไม่มีข้อมูล</p>';
   const cats = await catsOf();
+  const dShort = (iso) => { const t = new Date(`${iso}T00:00:00Z`); return `${t.getUTCDate()} ${TH_MON[t.getUTCMonth()]} ${String(t.getUTCFullYear() + 543).slice(-2)}`; };
+  const STATUS_ICON = { verified: '<span class="hit" title="ยืนยัน 2+ แหล่ง">✓</span>', single: '' };
+  const cell = (d, c) => (Array.isArray(d[c])
+    ? `<td class="n m3">${d[c].map(esc).reduce((acc, x, i) => acc + (i && i % 2 === 0 ? '<br>' : i ? ' ' : '') + x, '')}</td>`
+    : `<td class="n">${esc(d[c] ?? '–')}</td>`);
   return `<h1>ผลย้อนหลัง</h1>
-    <p class="sub">${r.draws.length} งวด เรียงจากล่าสุด</p>
-    <div class="scroll"><table class="tbl compact">
-      <thead><tr><th>งวด</th>${cats.map((c) => `<th>${CAT_SHORT[c]}</th>`).join('')}<th>สถานะ</th><th>แต่ละแหล่ง</th></tr></thead>
-      <tbody>${r.draws.map((d) => `<tr><td>${esc(fmtDate(d.date))}</td>
-        ${cats.map((c) => `<td class="n${Array.isArray(d[c]) ? ' multi' : ''}">${show(d[c])}</td>`).join('')}
-        <td>${badge(d.status)}</td>
-        <td class="sub">${Object.entries(d.sources).map(([s, v]) => `${esc(r.sources[s]?.name || s)}: ${esc(v)}`).join('<br>')}</td></tr>`).join('')}</tbody>
-    </table></div>`;
+    <p class="sub">${r.draws.length} งวด เรียงจากล่าสุด · ✓ ยืนยันจาก 2 แหล่งขึ้นไป</p>
+    <table class="tbl hist">
+      <thead><tr><th>งวด</th>${cats.map((c) => `<th>${CAT_SHORT[c]}</th>`).join('')}<th></th></tr></thead>
+      <tbody>${r.draws.map((d) => `<tr>
+        <td class="dt">${esc(dShort(d.date))}<small>${esc(d.weekdayTh || '')}</small></td>
+        ${d.usable ? cats.map((c) => cell(d, c)).join('') : `<td colspan="${cats.length}" class="sub">${esc(STATUS_TH[d.status] || d.status)}</td>`}
+        <td class="st">${d.status in STATUS_ICON ? STATUS_ICON[d.status] : d.usable ? badge(d.status) : ''}</td></tr>`).join('')}</tbody>
+    </table>
+    <p class="tiny">ค่าจากแต่ละแหล่งของงวดที่ไม่ตรงกัน ดูได้ที่ <a href="#${market}/quality">คุณภาพข้อมูล</a></p>`;
 }
 
 async function viewQuality() {
@@ -331,7 +341,8 @@ async function route() {
   });
   document.querySelectorAll('.tabs a').forEach((a) => {
     a.href = `#${mk}/${a.dataset.view}`;
-    if (a.dataset.view === view) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    const tab = view === 'models' || view === 'backtest' ? 'predict' : view;
+    if (a.dataset.view === tab) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   });
   document.getElementById('legal').hidden = mk !== 'lao';
   try { $app.innerHTML = await VIEWS[view](); } catch (e) { $app.innerHTML = `<p class="empty">แสดงหน้านี้ไม่ได้: ${esc(e.message)}</p>`; }
