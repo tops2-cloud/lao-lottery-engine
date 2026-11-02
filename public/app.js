@@ -88,6 +88,28 @@ async function latestResultBlock(res, cats, latestPred) {
     </section>`;
 }
 
+// Running score of the locked summary set vs. what random picks would expect.
+async function scoreLine(cats) {
+  const live = await load('live');
+  const entries = (live?.entries || []).filter((e) => e.scores?.ENSEMBLE);
+  if (!entries.length) return '';
+  const width = { top3: 3, bottom3: 3, top2: 2, bottom2: 2 };
+  const cells = cats.map((c) => {
+    let hits = 0; let n = 0; let exp = 0;
+    for (const e of entries) {
+      const s = e.scores.ENSEMBLE[c];
+      if (!s) continue;
+      n++; hits += s.exact ? 1 : 0;
+      exp += 1 - (1 - (s.n || 5) / 10 ** width[c]) ** (s.k || 1);
+    }
+    return `<div><small>${CAT_TH[c]}</small><b class="${hits ? 'hit' : ''}">${hits}<span>/${n}</span></b><i>สุ่ม ${exp < 0.1 ? exp.toFixed(2) : exp.toFixed(1)}</i></div>`;
+  }).join('');
+  return `<section class="score" aria-label="คะแนนสะสม">
+      <p class="sc-head">ผลจริงของชุดสรุปที่ล็อกไว้ <span>${entries.length} งวด · ถูก/งวด</span></p>
+      <div class="sc-grid" style="grid-template-columns:repeat(${cats.length},1fr)">${cells}</div>
+    </section>`;
+}
+
 // Earlier locked predictions (newest first), each with its result if known.
 async function previousBlock(latestDate, cats) {
   const idx = await load('predictions');
@@ -135,6 +157,7 @@ async function viewPredict() {
       <p class="tiny lockmeta">รหัส ${esc(p.hash)} · ข้อมูลถึง ${esc(fmtDate(p.A.dataThrough))} · คะแนนจาก ${esc(p.ensemble.used.join(' '))}</p>
     </section>
 
+    ${await scoreLine(cats)}
     ${await previousBlock(p.target.date, cats)}
 
     <details class="fold">

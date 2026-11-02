@@ -91,6 +91,16 @@ p { margin: 0 0 10px; max-width: 68ch; }
 .pick.on { background: var(--ok); color: #fff; }
 .waiting { border-left: 4px solid var(--ink); background: var(--card); padding: 8px 12px; border-radius: 0 10px 10px 0; font-size: 14px; margin: 0 0 10px; }
 
+/* running score */
+.score { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 8px 14px 6px; margin: 8px 0; }
+.sc-head { font: 600 14px/1.4 var(--num); margin: 0 0 4px; }
+.sc-head span { font: 400 12px var(--body); color: var(--ink-soft); margin-left: 4px; }
+.sc-grid { display: grid; gap: 6px; }
+.sc-grid small { display: block; font-size: 11px; color: var(--ink-soft); line-height: 1.2; }
+.sc-grid b { font: 700 18px/1.2 var(--num); font-variant-numeric: tabular-nums; }
+.sc-grid b span { font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+.sc-grid i { display: block; font-style: normal; font-size: 11px; color: var(--ink-soft); }
+
 /* previous predictions */
 .prev { border-top: 1px solid var(--line); padding: 8px 0 4px; }
 .prev:first-of-type { border-top: 0; padding-top: 2px; }
