@@ -348,24 +348,56 @@ function findWords(text, items) {
   }
   return hits.sort((a, b) => a.at - b.at);
 }
-function dreamNumbers(text, items) {
+const OPP = { 0: 5, 1: 6, 2: 7, 3: 8, 4: 9, 5: 0, 6: 1, 7: 2, 8: 3, 9: 4 };
+const DAY_NUM = [1, 2, 3, 4, 5, 6, 7]; // เลขประจำวัน อาทิตย์=1 … เสาร์=7
+const DAY_TH = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+
+// Break a seen number into the parts people usually read from it.
+function readNumber(n) {
+  const ds = n.split('').map(Number);
+  const cnt = {}; for (const x of ds) cnt[x] = (cnt[x] || 0) + 1;
+  const max = Math.max(...Object.values(cnt));
+  const lead = max > 1 ? Number(Object.keys(cnt).find((k) => cnt[k] === max)) : ds[ds.length - 1];
+  const sum = ds.reduce((x, y) => x + y, 0) % 10;
+  return { n, lead, sum, opp: n.split('').map((x) => OPP[x]).join('') };
+}
+
+function dreamNumbers(text, items, day = new Date(Date.now() + 7 * 3600 * 1000).getUTCDay()) {
   const toArabic = (t) => t.replace(/[๐-๙]/g, (c) => String('๐๑๒๓๔๕๖๗๘๙'.indexOf(c)));
   const clean = toArabic(text);
-  const seen = (clean.match(/\d+/g) || []).filter((n) => n.length >= 2).slice(0, 5);
+  const seen = (clean.match(/\d+/g) || []).filter((n) => n.length >= 2).slice(0, 3).map(readNumber);
   const words = findWords(clean, items);
+  const dayDigit = DAY_NUM[day] % 10;
   const two = []; const three = [];
-  const add = (arr, n) => { if (n && !arr.includes(n) && arr.length < 6) arr.push(n); };
-  // 1) numbers the person actually saw (plates, house numbers…)
-  for (const n of seen) { add(two, n.slice(-2)); if (n.length >= 3) add(three, n.slice(-3)); }
-  // 2) the pair given for each thing, in the order they appear in the text
-  const pairs = words.map((w) => w.nums.find((x) => x.length === 2)).filter(Boolean);
-  const digits = [...new Set(words.flatMap((w) => w.nums.filter((x) => x.length === 1)))];
-  for (const pr of pairs) add(two, pr);
-  // 3) cross pairs and threes built from the main digit of each thing
-  for (let i = 0; i < digits.length; i++) for (let j = 0; j < digits.length; j++) if (i !== j) add(two, digits[i] + digits[j]);
-  for (const pr of pairs) for (const d of digits) if (!pr.includes(d)) add(three, pr + d);
-  for (let i = 0; i + 2 < digits.length; i++) add(three, digits.slice(i, i + 3).join(''));
-  return { seen, words, two, three };
+  const add = (arr, n, max = 6) => { if (n && !arr.includes(n) && arr.length < max) arr.push(n); };
+
+  const wordPairs = words.map((w) => w.nums.find((x) => x.length === 2)).filter(Boolean);
+  const wordDigits = [...new Set(words.flatMap((w) => w.nums.filter((x) => x.length === 1).map(Number)))];
+  // Main digits, in the order people weigh them: the seen number's lead digit,
+  // the things in the story, the number's digit sum, then the day.
+  const core = [...new Set([...seen.map((r) => r.lead), ...wordDigits, ...seen.map((r) => r.sum), dayDigit])];
+
+  // 2 ตัว
+  for (const r of seen) for (const w of wordDigits.slice(0, 2)) add(two, `${r.lead}${w}`);
+  for (const pr of wordPairs.slice(0, 2)) add(two, pr);
+  for (const r of seen) add(two, `${r.lead}${r.sum}`);
+  for (let i = 0; i < core.length; i++) for (let j = 0; j < core.length; j++) if (i !== j) add(two, `${core[i]}${core[j]}`);
+  for (const r of seen) add(two, r.n.slice(-2), 8); // the literal number stays, but last
+
+  // 3 ตัว
+  for (const r of seen) for (const pr of wordPairs.slice(0, 2)) add(three, `${r.lead}${pr}`);
+  for (const r of seen) add(three, `${r.lead}${r.sum}${dayDigit}`);
+  for (const pr of wordPairs) for (const d of core) if (!pr.includes(String(d))) add(three, pr + d);
+  for (let i = 0; i + 2 < core.length; i++) add(three, core.slice(i, i + 3).join(''));
+  for (const r of seen) if (r.n.length >= 3) add(three, r.n.slice(-3), 8);
+
+  // keep the literal number out of the top spot when there is anything else
+  const demote = (arr, lits) => { const rest = arr.filter((x) => !lits.includes(x)); const lit = arr.filter((x) => lits.includes(x)); return [...rest.slice(0, 4), ...lit.slice(0, 1), ...rest.slice(4)].slice(0, 5); };
+  return {
+    seen, words, day, dayDigit,
+    two: demote(two, seen.map((r) => r.n.slice(-2))),
+    three: demote(three, seen.map((r) => r.n.slice(-3))),
+  };
 }
 
 const DREAM_KEY = 'dream-log-v1';
@@ -376,7 +408,7 @@ async function viewDream() {
   const p = await load('latest');
   const target = p?.target?.date;
   return `<h1>ทำนายจากฝันหรือสิ่งที่พบเจอ</h1>
-    <p class="sub">พิมพ์ความฝันหรือเหตุการณ์ที่เจอ เช่น "ฝันเห็นงูใหญ่สีทองในวัด" หรือ "เห็นรถทะเบียน 7985 ชนกัน" ตัวเลขที่พิมพ์มาจะถูกใช้ด้วย</p>
+    <p class="sub">พิมพ์ความฝันหรือเหตุการณ์ที่เจอ เช่น "ฝันเห็นงูใหญ่สีทองในวัด" หรือ "คืนนี้นอนห้องพัก 211" ระบบจะแตกตัวเลขที่เห็นเป็นเลขเด่นและผลรวม แล้วผสมกับเลขของสิ่งในเรื่องและเลขประจำวัน</p>
     <form id="dreamForm" class="dream">
       <textarea id="dreamText" rows="4" maxlength="500" placeholder="เล่ารายละเอียดที่นี่" aria-label="รายละเอียดความฝันหรือสิ่งที่พบเจอ"></textarea>
       <button type="submit" class="btn primary">ตีเลข</button>
@@ -397,8 +429,9 @@ function renderDreamOut(res, text, target) {
       <div class="row"><span>3 ตัว</span>${nums(res.three.slice(0, 5))}</div>
       <p class="f-title">ที่มาของเลข</p>
       <ul class="notes tight">
-        ${res.seen.map((n) => `<li>ตัวเลขที่เห็น <b class="n">${esc(n)}</b></li>`).join('')}
+        ${res.seen.map((r) => `<li>${esc(r.n)} → เลขเด่น <b class="n">${r.lead}</b> · ผลรวม <b class="n">${r.sum}</b> · คู่ตรงข้าม <b class="n">${esc(r.opp)}</b></li>`).join('')}
         ${res.words.map((w) => `<li>${esc(w.word)}${w.word === w.name ? '' : ` (${esc(w.name)})`} <b class="n">${w.nums.map(esc).join(' ')}</b></li>`).join('')}
+        <li>วัน${esc(DAY_TH[res.day])} เลขประจำวัน <b class="n">${res.dayDigit}</b></li>
       </ul>
       ${target ? `<button type="button" id="dreamSave" class="btn">บันทึกไว้ตรวจกับงวด ${esc(fmtDate(target))}</button>` : '<p class="tiny">ปิดรับงวดนี้แล้ว บันทึกได้อีกครั้งเมื่อระบบล็อกงวดถัดไป</p>'}
     </section>`;
