@@ -1,5 +1,5 @@
 {
-  "builtAt": "2026-11-03T13:16:18.052Z",
+  "builtAt": "2026-11-03T14:30:34.291Z",
   "note": "นับเฉพาะคำทำนายที่ล็อกก่อน 20:15 น. ของวันออกผล",
   "entries": [
     {
@@ -380,6 +380,205 @@
             "exact": false,
             "posBest": 1,
             "commonTop": 0,
+            "n": 5,
+            "k": 1
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          }
+        }
+      }
+    },
+    {
+      "date": "2026-11-03",
+      "drawDate": "2026-11-03",
+      "lockedAt": "2026-11-02T13:21:30.525Z",
+      "onTime": true,
+      "hash": "df45a4be9f0641b4",
+      "status": "verified",
+      "actual": {
+        "top3": "713",
+        "top2": "13",
+        "bottom2": "57"
+      },
+      "scores": {
+        "R1": {
+          "top3": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "R2": {
+          "top3": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "R4": {
+          "top3": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "R5": {
+          "top3": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "R6": {
+          "top3": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "R7": {
+          "top3": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "ENSEMBLE": {
+          "top3": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "OPPOSITE": {
+          "top3": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 1,
             "n": 5,
             "k": 1
           },
