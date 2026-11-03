@@ -328,7 +328,139 @@ async function viewArchive() {
     </tbody></table></div>` : '<p class="empty">ยังไม่มี</p>'}`;
 }
 
-const VIEWS = { predict: viewPredict, models: viewModels, backtest: viewBacktest, history: viewHistory, quality: viewQuality, archive: viewArchive };
+// ---------- ฝัน/พบเจอ: text → numbers from public/dreams.json ----------
+let DREAMS = null;
+async function loadDreams() {
+  if (!DREAMS) DREAMS = fetch('dreams.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : { items: [] })).catch(() => ({ items: [] }));
+  return DREAMS;
+}
+const COMBINING = /[ัิ-ฺ็-๎]/; // Thai vowel/tone marks that continue a syllable
+function findWords(text, items) {
+  const hits = [];
+  for (const it of items) {
+    let at = -1; let word = '';
+    for (const w of [...it.words].sort((a, b) => b.length - a.length)) {
+      let i = text.indexOf(w);
+      while (i > -1 && COMBINING.test(text[i + w.length] || '')) i = text.indexOf(w, i + 1);
+      if (i > -1 && (at === -1 || i < at)) { at = i; word = w; }
+    }
+    if (at > -1) hits.push({ ...it, at, word });
+  }
+  return hits.sort((a, b) => a.at - b.at);
+}
+function dreamNumbers(text, items) {
+  const toArabic = (t) => t.replace(/[๐-๙]/g, (c) => String('๐๑๒๓๔๕๖๗๘๙'.indexOf(c)));
+  const clean = toArabic(text);
+  const seen = (clean.match(/\d+/g) || []).filter((n) => n.length >= 2).slice(0, 5);
+  const words = findWords(clean, items);
+  const two = []; const three = [];
+  const add = (arr, n) => { if (n && !arr.includes(n) && arr.length < 6) arr.push(n); };
+  // 1) numbers the person actually saw (plates, house numbers…)
+  for (const n of seen) { add(two, n.slice(-2)); if (n.length >= 3) add(three, n.slice(-3)); }
+  // 2) the pair given for each thing, in the order they appear in the text
+  const pairs = words.map((w) => w.nums.find((x) => x.length === 2)).filter(Boolean);
+  const digits = [...new Set(words.flatMap((w) => w.nums.filter((x) => x.length === 1)))];
+  for (const pr of pairs) add(two, pr);
+  // 3) cross pairs and threes built from the main digit of each thing
+  for (let i = 0; i < digits.length; i++) for (let j = 0; j < digits.length; j++) if (i !== j) add(two, digits[i] + digits[j]);
+  for (const pr of pairs) for (const d of digits) if (!pr.includes(d)) add(three, pr + d);
+  for (let i = 0; i + 2 < digits.length; i++) add(three, digits.slice(i, i + 3).join(''));
+  return { seen, words, two, three };
+}
+
+const DREAM_KEY = 'dream-log-v1';
+const readLog = () => { try { return JSON.parse(localStorage.getItem(DREAM_KEY) || '[]'); } catch { return []; } };
+const writeLog = (l) => { try { localStorage.setItem(DREAM_KEY, JSON.stringify(l.slice(0, 30))); } catch { /* storage off */ } };
+
+async function viewDream() {
+  const p = await load('latest');
+  const target = p?.target?.date;
+  return `<h1>ทำนายจากฝันหรือสิ่งที่พบเจอ</h1>
+    <p class="sub">พิมพ์ความฝันหรือเหตุการณ์ที่เจอ เช่น "ฝันเห็นงูใหญ่สีทองในวัด" หรือ "เห็นรถทะเบียน 7985 ชนกัน" ตัวเลขที่พิมพ์มาจะถูกใช้ด้วย</p>
+    <form id="dreamForm" class="dream">
+      <textarea id="dreamText" rows="4" maxlength="500" placeholder="เล่ารายละเอียดที่นี่" aria-label="รายละเอียดความฝันหรือสิ่งที่พบเจอ"></textarea>
+      <button type="submit" class="btn primary">ตีเลข</button>
+    </form>
+    <div id="dreamOut"></div>
+    <div id="dreamLog"></div>
+    <p class="tiny">เลขจากฝันมาจากความเชื่อ ไม่ใช่สถิติ ไม่ได้ทดสอบใน Backtest ตารางคำแก้ได้ที่ไฟล์ public/dreams.json${target ? '' : ''}</p>`;
+}
+
+function renderDreamOut(res, text, target) {
+  const out = document.getElementById('dreamOut');
+  if (!res.words.length && !res.seen.length) {
+    out.innerHTML = `<p class="waiting">ไม่พบคำที่อยู่ในตาราง ลองใช้คำง่าย ๆ เช่น งู ช้าง พระ ทอง น้ำ รถ เด็ก หรือพิมพ์ตัวเลขที่เห็น</p>`;
+    return;
+  }
+  out.innerHTML = `<section class="sealed dream-res">
+      <div class="row"><span>2 ตัว</span>${nums(res.two.slice(0, 5))}</div>
+      <div class="row"><span>3 ตัว</span>${nums(res.three.slice(0, 5))}</div>
+      <p class="f-title">ที่มาของเลข</p>
+      <ul class="notes tight">
+        ${res.seen.map((n) => `<li>ตัวเลขที่เห็น <b class="n">${esc(n)}</b></li>`).join('')}
+        ${res.words.map((w) => `<li>${esc(w.word)}${w.word === w.name ? '' : ` (${esc(w.name)})`} <b class="n">${w.nums.map(esc).join(' ')}</b></li>`).join('')}
+      </ul>
+      ${target ? `<button type="button" id="dreamSave" class="btn">บันทึกไว้ตรวจกับงวด ${esc(fmtDate(target))}</button>` : '<p class="tiny">ปิดรับงวดนี้แล้ว บันทึกได้อีกครั้งเมื่อระบบล็อกงวดถัดไป</p>'}
+    </section>`;
+  const btn = document.getElementById('dreamSave');
+  if (btn) btn.onclick = () => {
+    const log = readLog();
+    log.unshift({ market, target, text: text.slice(0, 200), two: res.two.slice(0, 5), three: res.three.slice(0, 5), at: new Date().toISOString() });
+    writeLog(log);
+    btn.textContent = 'บันทึกแล้ว'; btn.disabled = true;
+    renderDreamLog();
+  };
+}
+
+async function renderDreamLog() {
+  const el = document.getElementById('dreamLog');
+  if (!el) return;
+  const log = readLog().filter((e) => e.market === market);
+  if (!log.length) { el.innerHTML = ''; return; }
+  const res = await load('results');
+  const byDate = Object.fromEntries((res?.draws || []).filter((d) => d.usable).map((d) => [d.date, d]));
+  el.innerHTML = `<details class="fold" open>
+      <summary>ที่บันทึกไว้ (${log.length})</summary>
+      ${log.map((e) => {
+        const d = byDate[e.target];
+        const win2 = d ? [d.top2, d.bottom2] : [];
+        const win3 = d ? [d.top3, ...vals(d.bottom3)] : [];
+        const hit = d && (e.two.some((n) => win2.includes(n)) || e.three.some((n) => win3.includes(n)));
+        return `<div class="prev">
+          <div class="p-head"><b>งวด ${esc(fmtDate(e.target))}</b>${d ? `<span class="p-res">ผล ${esc(d.top3)} / ${esc(d.bottom2)}</span><span class="${hit ? 'hit' : 'miss'}">${hit ? 'ถูก' : 'ไม่ถูก'}</span>` : badge('pending')}</div>
+          <p class="tiny q">"${esc(e.text)}"</p>
+          <div class="cmp-row"><span class="lbl">2 ตัว</span><span class="mark"></span>${e.two.map((n) => `<span class="pick${win2.includes(n) ? ' on' : ''}">${esc(n)}</span>`).join('')}</div>
+          <div class="cmp-row"><span class="lbl">3 ตัว</span><span class="mark"></span>${e.three.map((n) => `<span class="pick${win3.includes(n) ? ' on' : ''}">${esc(n)}</span>`).join('')}</div>
+        </div>`;
+      }).join('')}
+      <p class="tiny">เก็บไว้ในเครื่องนี้เท่านั้น 2 ตัวตรวจกับ 2 ตัวบนและล่าง · 3 ตัวตรวจกับ 3 ตัวบน${market === 'thai' ? 'และ 3 ตัวล่าง' : ''} · <a href="#" id="dreamClear">ล้างทั้งหมด</a></p>
+    </details>`;
+  document.getElementById('dreamClear').onclick = (ev) => {
+    ev.preventDefault();
+    writeLog(readLog().filter((e) => e.market !== market));
+    renderDreamLog();
+  };
+}
+
+async function afterDream() {
+  const form = document.getElementById('dreamForm');
+  if (!form) return;
+  const p = await load('latest');
+  const dict = await loadDreams();
+  form.onsubmit = async (ev) => {
+    ev.preventDefault();
+    const text = document.getElementById('dreamText').value.trim();
+    if (!text) return;
+    const res = await load('results');
+    const close = res?.market?.close || (market === 'thai' ? '14:00' : '20:15');
+    const t = p?.target?.date;
+    const open = t && Date.now() < new Date(`${t}T${close}:00+07:00`).getTime();
+    renderDreamOut(dreamNumbers(text, dict.items || []), text, open ? t : null);
+  };
+  renderDreamLog();
+}
+
+const VIEWS = { predict: viewPredict, models: viewModels, backtest: viewBacktest, dream: viewDream, history: viewHistory, quality: viewQuality, archive: viewArchive };
 
 async function route() {
   // #lao/predict, #thai/backtest … (old links like #predict open หวยลาว)
@@ -343,11 +475,11 @@ async function route() {
   });
   document.querySelectorAll('.tabs a').forEach((a) => {
     a.href = `#${mk}/${a.dataset.view}`;
-    const tab = view === 'history' ? 'history' : 'predict';
+    const tab = view === 'history' || view === 'dream' ? view : 'predict';
     if (a.dataset.view === tab) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   });
   document.getElementById('legal').hidden = mk !== 'lao';
-  try { $app.innerHTML = await VIEWS[view](); } catch (e) { $app.innerHTML = `<p class="empty">แสดงหน้านี้ไม่ได้: ${esc(e.message)}</p>`; }
+  try { $app.innerHTML = await VIEWS[view](); if (view === 'dream') afterDream(); } catch (e) { $app.innerHTML = `<p class="empty">แสดงหน้านี้ไม่ได้: ${esc(e.message)}</p>`; }
   const r = await load('results');
   document.getElementById('built').textContent = r ? `อัปเดตข้อมูล ${fmtTime(r.builtAt)}` : '';
 }

@@ -195,3 +195,16 @@ details.model dd { margin: 0; }
 /* all main tabs fit on one line */
 .tabs { overflow: visible; }
 .tabs a { flex: 1 1 0; text-align: center; padding: 6px 6px; font-size: 15px; white-space: nowrap; }
+
+/* ฝัน/พบเจอ */
+.dream { display: grid; gap: 8px; margin: 10px 0 12px; }
+.dream textarea { width: 100%; font: 400 16px/1.5 var(--body); color: var(--ink); background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; resize: vertical; }
+.dream textarea:focus { outline: 2px solid var(--ink); outline-offset: 1px; }
+.btn.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); font-size: 16px; }
+button.btn { cursor: pointer; width: 100%; color: var(--ink); }
+button.btn.primary { color: var(--paper); }
+button.btn:disabled { opacity: .6; cursor: default; }
+.dream-res { margin-top: 0; }
+.dream-res .btn { margin-top: 8px; }
+ul.notes.tight li { margin: 2px 0; font-size: 14px; }
+.prev .q { margin: 0 0 2px; font-style: italic; }
