@@ -1,8 +1,9 @@
 {
-  "builtAt": "2026-11-04T13:17:57.495Z",
+  "builtAt": "2026-11-04T14:36:00.852Z",
   "entries": [
     {
       "date": "2026-11-05",
+      "drawDate": "2026-11-05",
       "lockedAt": "2026-11-04T13:17:57.495Z",
       "onTime": true,
       "hash": "365d78fa98c3c337",
@@ -14,7 +15,198 @@
       "lockedAt": "2026-11-03T13:16:18.052Z",
       "onTime": true,
       "hash": "f1359dc3f29a4a74",
-      "status": "pending"
+      "status": "verified",
+      "actual": {
+        "top3": "808",
+        "top2": "08",
+        "bottom2": "88"
+      },
+      "scores": {
+        "R1": {
+          "top3": {
+            "exact": false,
+            "posBest": 2,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "top2": {
+            "exact": true,
+            "posBest": 2,
+            "commonTop": null,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "R2": {
+          "top3": {
+            "exact": false,
+            "posBest": 2,
+            "commonTop": 2,
+            "n": 5,
+            "k": 1
+          },
+          "top2": {
+            "exact": true,
+            "posBest": 2,
+            "commonTop": null,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "R4": {
+          "top3": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "R5": {
+          "top3": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 2,
+            "n": 5,
+            "k": 1
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "R6": {
+          "top3": {
+            "exact": false,
+            "posBest": 2,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "top2": {
+            "exact": true,
+            "posBest": 2,
+            "commonTop": null,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "R7": {
+          "top3": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "ENSEMBLE": {
+          "top3": {
+            "exact": false,
+            "posBest": 2,
+            "commonTop": 1,
+            "n": 5,
+            "k": 1
+          },
+          "top2": {
+            "exact": true,
+            "posBest": 2,
+            "commonTop": null,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": false,
+            "posBest": 0,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          }
+        },
+        "OPPOSITE": {
+          "top3": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          },
+          "top2": {
+            "exact": false,
+            "posBest": 1,
+            "commonTop": 0,
+            "n": 5,
+            "k": 1
+          },
+          "bottom2": {
+            "exact": true,
+            "posBest": 2,
+            "commonTop": null,
+            "n": 5,
+            "k": 1
+          }
+        }
+      }
     },
     {
       "date": "2026-11-03",
