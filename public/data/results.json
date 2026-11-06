@@ -1,5 +1,5 @@
 {
-  "builtAt": "2026-11-06T13:17:51.263Z",
+  "builtAt": "2026-11-06T14:32:30.182Z",
   "market": {
     "id": "lao",
     "name": "หวยลาว",
@@ -37,10 +37,33 @@
   },
   "counts": {
     "single": 258,
-    "verified": 233,
+    "verified": 234,
     "majority": 2
   },
   "draws": [
+    {
+      "date": "2026-11-06",
+      "weekday": 5,
+      "weekdayTh": "ศุกร์",
+      "group": "5",
+      "groupTh": "วันศุกร์",
+      "status": "verified",
+      "usable": true,
+      "last4": "8098",
+      "top3": "098",
+      "top2": "98",
+      "bottom2": "80",
+      "sources": {
+        "phonhuay": "098/80",
+        "saihuay": "098/80"
+      },
+      "voters": [
+        "phonhuay",
+        "saihuay"
+      ],
+      "independentSources": 2,
+      "issues": []
+    },
     {
       "date": "2026-11-05",
       "weekday": 4,
