@@ -186,6 +186,7 @@ async function viewPredict() {
       <a class="btn" href="#${market}/backtest">Backtest</a>
       <a class="btn" href="#${market}/archive">คำทำนายที่ล็อกไว้</a>
       <a class="btn" href="#${market}/quality">คุณภาพข้อมูล</a>
+      <a class="btn wide" href="#${market}/random">ตรวจความสุ่ม</a>
     </div>`;
   if (!locked) {
     return `${top}${predictCard(st)}
@@ -592,7 +593,128 @@ async function afterDream() {
   renderDreamLog();
 }
 
-const VIEWS = { predict: viewPredict, models: viewModels, backtest: viewBacktest, dream: viewDream, history: viewHistory, quality: viewQuality, archive: viewArchive };
+// ---------- ตรวจความสุ่ม: is each digit / number drawn evenly, and independently of the last draw? ----------
+// Regularized upper incomplete gamma Q(a, x) → chi-square p-value = Q(df/2, x/2)
+function lnGamma(z) {
+  const c = [76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5];
+  let x = z; let y = z; let t = x + 5.5; t -= (x + 0.5) * Math.log(t);
+  let ser = 1.000000000190015; for (const ci of c) ser += ci / ++y;
+  return -t + Math.log(2.5066282746310005 * ser / x);
+}
+function gammaQ(a, x) {
+  if (x <= 0) return 1;
+  if (x < a + 1) { // series for P
+    let sum = 1 / a; let del = sum; let ap = a;
+    for (let n = 0; n < 500; n++) { ap++; del *= x / ap; sum += del; if (Math.abs(del) < Math.abs(sum) * 1e-12) break; }
+    return 1 - sum * Math.exp(-x + a * Math.log(x) - lnGamma(a));
+  }
+  let b = x + 1 - a; let c = 1e300; let d = 1 / b; let h = d; // continued fraction for Q
+  for (let i = 1; i < 500; i++) {
+    const an = -i * (i - a); b += 2;
+    d = an * d + b; if (Math.abs(d) < 1e-300) d = 1e-300;
+    c = b + an / c; if (Math.abs(c) < 1e-300) c = 1e-300;
+    d = 1 / d; const del = d * c; h *= del; if (Math.abs(del - 1) < 1e-12) break;
+  }
+  return Math.exp(-x + a * Math.log(x) - lnGamma(a)) * h;
+}
+const chiP = (stat, df) => gammaQ(df / 2, stat / 2);
+function chiSquare(counts) {
+  const n = counts.reduce((a, b) => a + b, 0); const e = n / counts.length;
+  const stat = counts.reduce((s, o) => s + (o - e) ** 2 / e, 0);
+  return { n, expected: e, stat, df: counts.length - 1, p: chiP(stat, counts.length - 1) };
+}
+// two-sided normal approximation to a binomial count
+function binomZ(k, n, p) {
+  const mu = n * p; const sd = Math.sqrt(n * p * (1 - p)); const z = sd ? (k - mu) / sd : 0;
+  const erfc = (x) => { const t = 1 / (1 + 0.5 * Math.abs(x)); const r = t * Math.exp(-x * x - 1.26551223 + t * (1.00002368 + t * (0.37409196 + t * (0.09678418 + t * (-0.18628806 + t * (0.27886807 + t * (-1.13520398 + t * (1.48851587 + t * (-0.82215223 + t * 0.17087277))))))))); return x >= 0 ? r : 2 - r; };
+  return { mu, z, p: erfc(Math.abs(z) / Math.SQRT2) };
+}
+
+function randomnessData(draws) {
+  const rows = draws.filter((d) => d.usable).slice().reverse(); // oldest first
+  if (market === 'lao') {
+    const seq = rows.map((d) => d.last4 || (d.bottom2 && d.top3 ? d.bottom2[0] + d.top3 : null)).filter((x) => /^\d{4}$/.test(x || ''));
+    return { label: 'เลขท้าย 4 ตัว', positions: ['หลักพัน', 'หลักร้อย', 'หลักสิบ', 'หลักหน่วย'], digits: seq, pairs: { '2 ตัวบน': rows.map((d) => d.top2), '2 ตัวล่าง': rows.map((d) => d.bottom2) }, n: seq.length };
+  }
+  const seq = rows.map((d) => d.first).filter((x) => /^\d{6}$/.test(x || ''));
+  return { label: 'รางวัลที่ 1', positions: ['หลักแสน', 'หลักหมื่น', 'หลักพัน', 'หลักร้อย', 'หลักสิบ', 'หลักหน่วย'], digits: seq, pairs: { '2 ตัวบน': rows.map((d) => d.top2), '2 ตัวล่าง (เลขท้าย 2 ตัว)': rows.map((d) => d.bottom2) }, n: seq.length };
+}
+
+function bars(counts, expected) {
+  const max = Math.max(...counts, expected) * 1.08;
+  return `<div class="bars" role="img" aria-label="จำนวนครั้งที่เลข 0 ถึง 9 ออก เทียบค่าที่คาด ${expected.toFixed(1)} ครั้ง">
+      <span class="exp" style="bottom:${(expected / max) * 100}%"></span>
+      ${counts.map((c, d) => `<span class="bar" style="height:${(c / max) * 100}%" title="เลข ${d}: ${c} ครั้ง (คาด ${expected.toFixed(1)})"><i>${d}</i></span>`).join('')}
+    </div>`;
+}
+
+async function viewRandom() {
+  const r = await load('results');
+  if (!r) return '<p class="empty">ไม่มีข้อมูล</p>';
+  const D = randomnessData(r.draws);
+  const tests = [];
+  // 1) each digit position: are 0–9 equally common?
+  const posTests = D.positions.map((name, i) => {
+    const c = Array(10).fill(0); for (const s of D.digits) c[Number(s[i])]++;
+    const t = { kind: 'pos', name: `${D.label} ${name}`, counts: c, ...chiSquare(c) };
+    tests.push(t); return t;
+  });
+  // 2) 2-digit numbers: are 00–99 equally common?
+  for (const [name, list] of Object.entries(D.pairs)) {
+    const c = Array(100).fill(0); for (const x of list) if (/^\d{2}$/.test(x || '')) c[Number(x)]++;
+    const hot = c.map((v, i) => [String(i).padStart(2, '0'), v]).sort((a, b) => b[1] - a[1]);
+    tests.push({ kind: 'pair', name: `${name} 00–99`, hot: hot.slice(0, 3), cold: hot.filter(([, v]) => v === 0).length, ...chiSquare(c) });
+  }
+  // 3) memory: does a digit repeat the previous draw's digit in the same position more than 1 in 10?
+  D.positions.forEach((name, i) => {
+    let k = 0; for (let j = 1; j < D.digits.length; j++) if (D.digits[j][i] === D.digits[j - 1][i]) k++;
+    const b = binomZ(k, D.digits.length - 1, 0.1);
+    tests.push({ kind: 'rep', name: `${name} ซ้ำงวดก่อน`, k, n: D.digits.length - 1, ...b });
+  });
+  const m = tests.length;
+  for (const t of tests) t.pAdj = Math.min(1, t.p * m);
+  const flagged = tests.filter((t) => t.pAdj < 0.05);
+  const rawLow = tests.filter((t) => t.p < 0.05).length;
+  const verdict = (t) => (t.pAdj < 0.05 ? '<span class="badge b-conflict">ผิดปกติ</span>' : t.p < 0.05 ? '<span class="badge b-majority">ต้องดูต่อ</span>' : '<span class="hit">ปกติ</span>');
+  const fmtP = (p) => (p < 0.001 ? '<0.001' : p.toFixed(3));
+
+  return `<a class="back" href="#${market}/predict">‹ กลับไปคำทำนาย</a>
+    <h1>ตรวจความสุ่ม</h1>
+    <div class="callout">${flagged.length
+      ? `พบ ${flagged.length} รายการที่ผิดปกติแม้ปรับการทดสอบหลายรายการแล้ว: ${flagged.map((t) => esc(t.name)).join(', ')} ควรดูต่อเมื่อมีข้อมูลเพิ่ม`
+      : `ทดสอบ ${m} รายการจาก ${D.n} งวด ไม่พบความเอียงที่ผิดปกติ ผลเข้ากับการสุ่มที่ยุติธรรม${rawLow ? ` (มี ${rawLow} รายการที่ p ต่ำกว่า 0.05 ก่อนปรับ ซึ่งเกิดโดยบังเอิญได้ราว ${(m * 0.05).toFixed(1)} รายการ)` : ''}`}</div>
+
+    <h2>1. เลข 0–9 ในแต่ละหลักออกเท่ากันไหม</h2>
+    <p class="sub">${esc(D.label)} ${D.n} งวด แต่ละเลขควรออกราว ${(D.n / 10).toFixed(1)} ครั้งต่อหลัก (เส้นประ) ความสูงต่างกันบ้างเป็นเรื่องปกติ ค่า p ยิ่งเล็กยิ่งผิดปกติ</p>
+    <div class="pos-grid">${posTests.map((t) => `<div class="pos">
+        <div class="pos-h"><b>${esc(t.name.replace(`${D.label} `, ''))}</b><span>p ${fmtP(t.p)} ${verdict(t)}</span></div>
+        ${bars(t.counts, t.expected)}
+      </div>`).join('')}</div>
+
+    <h2>2. เลข 2 ตัว 00–99 ออกเท่ากันไหม</h2>
+    <table class="tbl compact"><thead><tr><th>หมวด</th><th>ออกบ่อยสุด</th><th>ไม่เคยออก</th><th>p</th><th></th></tr></thead><tbody>
+      ${tests.filter((t) => t.kind === 'pair').map((t) => `<tr><td>${esc(t.name)}</td><td class="n">${t.hot.map(([n, v]) => `${n}×${v}`).join(' ')}</td><td class="n">${t.cold} เลข</td><td class="n">${fmtP(t.p)}</td><td>${verdict(t)}</td></tr>`).join('')}
+    </tbody></table>
+    <p class="tiny">แต่ละเลขควรออกราว ${(D.n / 100).toFixed(1)} ครั้ง การสุ่มจริงมักมีบางเลขออกบ่อยเกือบ 2–3 เท่าของค่านี้ และบางเลขแทบไม่ออก เป็นเรื่องปกติ</p>
+
+    <h2>3. งวดก่อนมีผลกับงวดถัดไปไหม</h2>
+    <p class="sub">ถ้าแต่ละงวดไม่เกี่ยวกัน เลขในหลักเดียวกันจะซ้ำงวดก่อนราว 1 ใน 10 ครั้ง</p>
+    <table class="tbl compact"><thead><tr><th>หลัก</th><th>ซ้ำจริง</th><th>คาดไว้</th><th>p</th><th></th></tr></thead><tbody>
+      ${tests.filter((t) => t.kind === 'rep').map((t) => `<tr><td>${esc(t.name.replace(' ซ้ำงวดก่อน', ''))}</td><td class="n">${t.k}</td><td class="n">${t.mu.toFixed(1)}</td><td class="n">${fmtP(t.p)}</td><td>${verdict(t)}</td></tr>`).join('')}
+    </tbody></table>
+
+    <details class="fold">
+      <summary>อ่านผลอย่างไร</summary>
+      <ul class="notes">
+        <li>ค่า p คือโอกาสที่การสุ่มยุติธรรมจะให้ผลเอียงเท่านี้หรือมากกว่า ค่าเล็กกว่า 0.05 เกิดได้ 1 ใน 20 ครั้งแม้สุ่มจริง</li>
+        <li>หน้านี้ทดสอบ ${m} รายการพร้อมกัน จึงตัดสินว่า "ผิดปกติ" เมื่อ p × ${m} ยังต่ำกว่า 0.05 (Bonferroni) ส่วน "ต้องดูต่อ" คือ p ต่ำแต่ยังอธิบายได้ด้วยความบังเอิญ</li>
+        <li>ใช้ chi-square สำหรับข้อ 1–2 และการทดสอบสัดส่วนสำหรับข้อ 3 ผลอัปเดตเองทุกครั้งที่มีงวดใหม่</li>
+        <li>ถ้าไม่พบความผิดปกติ แปลว่าไม่มีสูตรไหนใช้ประโยชน์จากข้อมูลชุดนี้ได้ ถ้าพบ ต้องรอดูว่ายังอยู่เมื่อมีข้อมูลเพิ่มหรือเปล่า</li>
+      </ul>
+    </details>`;
+}
+
+const VIEWS = { predict: viewPredict, models: viewModels, backtest: viewBacktest, dream: viewDream, history: viewHistory, random: viewRandom, quality: viewQuality, archive: viewArchive };
 
 let currentView = 'predict';
 async function render() {

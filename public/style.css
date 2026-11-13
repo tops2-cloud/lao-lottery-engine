@@ -216,3 +216,15 @@ ul.notes.tight li { margin: 2px 0; font-size: 14px; }
 .pform .btn { flex: 1; }
 .perr { color: var(--seal); }
 .sync { font-size: 12px; color: var(--ink-soft); margin: 6px auto 0; }
+
+/* ตรวจความสุ่ม */
+.btn.wide { grid-column: 1 / -1; }
+.pos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pos { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px 4px; }
+.pos-h { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; font-size: 13px; flex-wrap: wrap; }
+.pos-h span { font-size: 12px; color: var(--ink-soft); }
+.bars { position: relative; height: 88px; display: flex; align-items: flex-end; gap: 3px; margin: 6px 0 18px; border-bottom: 1px solid var(--line); }
+.bars .bar { position: relative; flex: 1; background: var(--ink); opacity: .78; border-radius: 4px 4px 0 0; min-height: 2px; }
+.bars .bar:hover { opacity: 1; }
+.bars .bar i { position: absolute; bottom: -17px; left: 0; right: 0; text-align: center; font: 500 11px var(--num); font-style: normal; color: var(--ink-soft); }
+.bars .exp { position: absolute; left: 0; right: 0; border-top: 1.5px dashed var(--seal); z-index: 1; pointer-events: none; }
