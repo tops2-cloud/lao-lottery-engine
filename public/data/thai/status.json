@@ -1,0 +1,13 @@
+{
+  "target": {
+    "date": "2026-11-16",
+    "weekday": 1,
+    "weekdayTh": "จันทร์",
+    "group": "mid",
+    "groupTh": "งวดกลางเดือน"
+  },
+  "closeAt": "2026-11-16T07:00:00.000Z",
+  "locked": true,
+  "drawTime": "14:30",
+  "close": "14:00"
+}

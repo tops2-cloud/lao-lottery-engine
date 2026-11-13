@@ -31,6 +31,40 @@ async function load(name) {
   if (!cache[url]) cache[url] = fetch(url, { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
   return cache[url];
 }
+// Put files returned by the API into the cache so the page shows them right away,
+// before Vercel has redeployed the static copies.
+function seed(mk, files) {
+  const base = MARKETS[mk].base;
+  for (const [name, data] of Object.entries(files || {})) if (data) cache[`${base}/${name}.json`] = Promise.resolve(data);
+  if (files?.latest?.target?.date) cache[`${base}/predictions/${files.latest.target.date}.json`] = Promise.resolve(files.latest);
+}
+
+const refreshed = {};
+function setSync(text) {
+  const el = document.getElementById('sync');
+  if (!el) return;
+  el.textContent = text || '';
+  el.hidden = !text;
+}
+// Once per market per visit: ask the server to pick up any new result.
+async function refreshMarket(mk) {
+  if (refreshed[mk]) return;
+  refreshed[mk] = true;
+  setSync('กำลังตรวจผลล่าสุด…');
+  try {
+    const r = await fetch(`/api/refresh?market=${mk}`).then((x) => x.json());
+    if (r.ok) {
+      seed(mk, r.files);
+      setSync('');
+      if (market === mk && currentView !== 'dream') render();
+    } else {
+      setSync(r.code === 'NO_TOKEN' ? '' : `ตรวจผลล่าสุดไม่สำเร็จ: ${r.error || ''}`);
+    }
+  } catch {
+    setSync(''); // offline or no API: the saved data is still shown
+  }
+}
+
 async function catsOf() {
   const r = await load('results');
   return r?.market?.cats || M().defaultCats;
@@ -142,9 +176,23 @@ async function viewPredict() {
   const res = await load('results');
   const cats = await catsOf();
   const p = await load('latest');
-  if (!res) return `<p class="empty">ยังไม่มีข้อมูล${market === 'thai' ? 'หวยไทย' : ''}บนเว็บ ให้ไปที่ GitHub แท็บ Actions แล้วกด Run workflow หนึ่งครั้ง ถ้ารันแล้วยังไม่ขึ้น ให้ดูขั้น "Build" ว่ามีข้อความผิดพลาดหรือไม่</p>`;
+  const st = await load('status');
+  if (!res) return '<p class="empty">ยังไม่มีข้อมูลบนเว็บ กำลังตรวจผลล่าสุด…</p>';
   const top = await latestResultBlock(res, cats, p);
-  if (!p) return top + '<p class="empty">ยังไม่มีคำทำนาย ระบบจะล็อกเมื่อ GitHub Actions รันรอบถัดไป</p>';
+  const targetDate = st ? st.target?.date : p?.target?.date;
+  const locked = st ? st.locked && p?.target?.date === targetDate : !!p;
+  const more = `<div class="more">
+      <a class="btn" href="#${market}/models">8 โมเดล</a>
+      <a class="btn" href="#${market}/backtest">Backtest</a>
+      <a class="btn" href="#${market}/archive">คำทำนายที่ล็อกไว้</a>
+      <a class="btn" href="#${market}/quality">คุณภาพข้อมูล</a>
+    </div>`;
+  if (!locked) {
+    return `${top}${predictCard(st)}
+    ${await scoreLine(cats)}
+    ${await previousBlock(targetDate, cats)}
+    ${more}`;
+  }
   const actual = res?.draws.find((d) => d.date === p.target.date && d.usable);
   const L = M().letters;
   const row = (c, list, small) => `<div class="row${small ? ' opp' : ''}"><span>${small ? '' : esc(L[c] ? `${L[c]} ` : '')}${CAT_TH[c]}</span>${nums(list, small)}</div>`;
@@ -175,12 +223,61 @@ async function viewPredict() {
         <tbody>${p.A.recent.map((d) => `<tr><td>${esc(fmtDate(d.date))}</td>${cats.map((c) => `<td class="n${Array.isArray(d[c]) ? ' multi' : ''}">${show(d[c])}</td>`).join('')}<td>${d.status === 'verified' ? '<span class="hit" title="ยืนยัน 2+ แหล่ง">✓</span>' : badge(d.status)}</td></tr>`).join('')}</tbody>
       </table></div>
     </details>
-    <div class="more">
-      <a class="btn" href="#${market}/models">8 โมเดล</a>
-      <a class="btn" href="#${market}/backtest">Backtest</a>
-      <a class="btn" href="#${market}/archive">คำทำนายที่ล็อกไว้</a>
-      <a class="btn" href="#${market}/quality">คุณภาพข้อมูล</a>
-    </div>`;
+    ${more}`;
+}
+
+// ---------- predict button ----------
+const PIN_KEY = 'lle-pin';
+const getPin = () => { try { return localStorage.getItem(PIN_KEY) || ''; } catch { return ''; } };
+const setPin = (v) => { try { if (v) localStorage.setItem(PIN_KEY, v); else localStorage.removeItem(PIN_KEY); } catch { /* storage off */ } };
+
+function predictCard(st) {
+  if (!st || !st.target) {
+    return `<section class="sealed pending"><div class="s-head"><b>งวดถัดไป</b></div><p class="tiny">รอผลงวดล่าสุดเข้าก่อน จึงจะทำนายงวดถัดไปได้</p></section>`;
+  }
+  const t = st.target.date;
+  const closeAt = st.closeAt ? new Date(st.closeAt) : null;
+  const head = `<div class="s-head"><b>งวดถัดไป ${esc(fmtDate(t))}</b></div>`;
+  if (closeAt && Date.now() > closeAt.getTime()) {
+    return `<section class="sealed pending">${head}<p class="tiny">ปิดรับงวดนี้แล้ว (${esc(fmtTime(st.closeAt))}) งวดนี้ไม่ได้ทำนาย</p></section>`;
+  }
+  const needPin = !getPin();
+  return `<section class="sealed pending" id="predictCard">${head}
+      <p class="tiny">ยังไม่ได้ทำนายงวดนี้ กดได้ครั้งเดียว ใช้ข้อมูลล่าสุด ณ ตอนกด และแก้ภายหลังไม่ได้${closeAt ? ` · ปิดรับ ${esc(fmtTime(st.closeAt))}` : ''}</p>
+      <form id="predictForm" class="pform">
+        ${needPin ? '<input id="pin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="PIN" aria-label="PIN" required>' : ''}
+        <button type="submit" class="btn primary" id="predictBtn">ทำนายงวดนี้</button>
+      </form>
+      <p class="tiny perr" id="predictMsg" hidden></p>
+    </section>`;
+}
+
+function afterPredict() {
+  const form = document.getElementById('predictForm');
+  if (!form) return;
+  form.onsubmit = async (ev) => {
+    ev.preventDefault();
+    const btn = document.getElementById('predictBtn');
+    const msg = document.getElementById('predictMsg');
+    const pinInput = document.getElementById('pin');
+    const pin = pinInput ? pinInput.value.trim() : getPin();
+    const st = await load('status');
+    btn.disabled = true; btn.textContent = 'กำลังคำนวณ…'; msg.hidden = true;
+    let r;
+    try {
+      r = await fetch('/api/predict', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ market, pin, target: st?.target?.date }) }).then((x) => x.json());
+    } catch {
+      r = { ok: false, error: 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ลองใหม่อีกครั้ง' };
+    }
+    if (r.code === 'BAD_PIN') setPin('');
+    else if (pin && (r.ok || r.message)) setPin(pin);
+    if (r.files) seed(market, r.files);
+    if (r.ok) { render(); return; }
+    btn.disabled = false; btn.textContent = 'ทำนายงวดนี้';
+    msg.textContent = r.error || r.message || 'ทำนายไม่สำเร็จ';
+    msg.hidden = false;
+    if (r.code === 'BAD_PIN' && !pinInput) render();
+  };
 }
 
 async function viewModels() {
@@ -478,22 +575,36 @@ async function renderDreamLog() {
 async function afterDream() {
   const form = document.getElementById('dreamForm');
   if (!form) return;
-  const p = await load('latest');
   const dict = await loadDreams();
   form.onsubmit = async (ev) => {
     ev.preventDefault();
     const text = document.getElementById('dreamText').value.trim();
     if (!text) return;
+    const st = await load('status');
+    const p = await load('latest');
     const res = await load('results');
     const close = res?.market?.close || (market === 'thai' ? '14:00' : '20:15');
-    const t = p?.target?.date;
-    const open = t && Date.now() < new Date(`${t}T${close}:00+07:00`).getTime();
+    const t = st ? st.target?.date : p?.target?.date;
+    const closeAt = st?.closeAt ? new Date(st.closeAt).getTime() : t ? new Date(`${t}T${close}:00+07:00`).getTime() : 0;
+    const open = t && Date.now() < closeAt;
     renderDreamOut(dreamNumbers(text, dict.items || []), text, open ? t : null);
   };
   renderDreamLog();
 }
 
 const VIEWS = { predict: viewPredict, models: viewModels, backtest: viewBacktest, dream: viewDream, history: viewHistory, quality: viewQuality, archive: viewArchive };
+
+let currentView = 'predict';
+async function render() {
+  const view = currentView;
+  try {
+    $app.innerHTML = await VIEWS[view]();
+    if (view === 'dream') afterDream();
+    if (view === 'predict') afterPredict();
+  } catch (e) { $app.innerHTML = `<p class="empty">แสดงหน้านี้ไม่ได้: ${esc(e.message)}</p>`; }
+  const r = await load('results');
+  document.getElementById('built').textContent = r ? `อัปเดตข้อมูล ${fmtTime(r.builtAt)}` : '';
+}
 
 async function route() {
   // #lao/predict, #thai/backtest … (old links like #predict open หวยลาว)
@@ -512,9 +623,9 @@ async function route() {
     if (a.dataset.view === tab) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   });
   document.getElementById('legal').hidden = mk !== 'lao';
-  try { $app.innerHTML = await VIEWS[view](); if (view === 'dream') afterDream(); } catch (e) { $app.innerHTML = `<p class="empty">แสดงหน้านี้ไม่ได้: ${esc(e.message)}</p>`; }
-  const r = await load('results');
-  document.getElementById('built').textContent = r ? `อัปเดตข้อมูล ${fmtTime(r.builtAt)}` : '';
+  currentView = view;
+  await render();
+  refreshMarket(mk);
 }
 
 window.addEventListener('hashchange', () => { route(); window.scrollTo(0, 0); });

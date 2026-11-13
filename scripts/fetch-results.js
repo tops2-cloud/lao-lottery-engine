@@ -90,7 +90,9 @@ async function thai(now) {
   return ok;
 }
 
-(async () => {
+module.exports = { lao, thai };
+
+if (require.main === module) (async () => {
   const now = new Date().toISOString();
   const only = arg('--market');
   const backfill = process.argv.includes('--backfill');

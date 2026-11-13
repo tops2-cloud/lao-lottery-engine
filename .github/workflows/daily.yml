@@ -1,6 +1,7 @@
 name: Daily results & locked prediction
 
-# schedule re-registered 2026-11-13 (GitHub stopped firing scheduled runs on 2026-11-09)
+# Backup only: the app's own API fetches results when it is opened, and predictions
+# are locked from the app's button. This keeps data and the backtest fresh and never locks.
 on:
   schedule:
     # หวยลาว: Mon–Fri 20:30 Bangkok (13:30 UTC)
@@ -45,7 +46,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Build data, score and lock prediction
-        run: node scripts/build.js
+        run: node scripts/build.js --no-lock
 
       - name: Refuse to change an already-locked prediction
         run: |
@@ -64,5 +65,7 @@ jobs:
             echo "Nothing new."
           else
             git commit -m "update $(TZ=Asia/Bangkok date '+%Y-%m-%d %H:%M') BKK"
+            # the app may have committed meanwhile; its data is as new as ours, so skip on conflict
+            git pull --rebase -q || { git rebase --abort; echo "Skipped: the app updated the data first."; exit 0; }
             git push
           fi

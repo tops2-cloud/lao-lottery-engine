@@ -208,3 +208,11 @@ button.btn:disabled { opacity: .6; cursor: default; }
 .dream-res .btn { margin-top: 8px; }
 ul.notes.tight li { margin: 2px 0; font-size: 14px; }
 .prev .q { margin: 0 0 2px; font-style: italic; }
+
+/* predict button */
+.sealed.pending { border-style: dashed; }
+.pform { display: flex; gap: 8px; margin: 8px 0 2px; }
+.pform input { width: 96px; flex: none; font: 600 18px/1.2 var(--num); letter-spacing: .2em; text-align: center; color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 8px; }
+.pform .btn { flex: 1; }
+.perr { color: var(--seal); }
+.sync { font-size: 12px; color: var(--ink-soft); margin: 6px auto 0; }

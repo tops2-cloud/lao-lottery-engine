@@ -74,6 +74,23 @@ Victory Gold Arena อ้างอิง LottoTH จึงไม่นับเ�
 
 Backtest ปรับค่า p แบบ Bonferroni เพราะทดสอบหลายสิบรายการพร้อมกัน และมีแถว "สุ่ม" ที่ใช้ seed คงที่ไว้เทียบ
 
+## โหมดกดปุ่มทำนาย (ตั้งแต่ 13 พ.ย. 2569)
+
+ไม่พึ่งตัวตั้งเวลาของ GitHub แล้ว:
+
+- **เปิดแอป** → `api/refresh` (Vercel) ตรวจว่ามีผลที่ควรออกแล้วแต่ยังไม่มีไหม ถ้ามีก็ดึงจากเว็บผล แล้ว commit ข้อมูลลง GitHub
+- **กดปุ่มทำนาย** → `api/predict` ตรวจ PIN, ดึงผลล่าสุด, คำนวณ แล้ว commit `predictions/YYYY-MM-DD.json` ทันที เวลา commit คือหลักฐานการล็อก
+- งวดละครั้ง กดซ้ำไม่ได้ ปิดรับ 20:15 น. (หวยไทย 14:00 น.) และหลังปิดรับต้องรอผลคืนนั้นเข้าก่อนจึงทำนายงวดถัดไปได้
+- GitHub Actions เหลือเป็นตัวสำรองเติมผลและคำนวณ backtest (`build.js --no-lock`) ไม่ล็อกเอง
+
+ตั้งค่าใน Vercel → Settings → Environment Variables:
+
+| ชื่อ | ค่า |
+|---|---|
+| `GITHUB_TOKEN` | fine-grained token เฉพาะ repo นี้ สิทธิ์ Contents: Read and write |
+| `LOCK_PIN` | PIN ที่ใช้กดทำนาย |
+| `GITHUB_REPO` | (ไม่ใส่ก็ได้) ค่าเริ่มต้น `tops2-cloud/lao-lottery-engine` |
+
 ## ติดตั้ง
 
 1. สร้าง repo ใหม่บน GitHub แล้ว push โฟลเดอร์นี้ขึ้นไป

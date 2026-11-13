@@ -128,3 +128,54 @@ test('Thai models cover all four categories', () => {
   const ens = ensemble(runModels(hist, { date: '2026-11-01', group: 'early', groupTh: 'งวดต้นเดือน' }, null, cats), undefined, cats);
   for (const c of cats) assert.strictEqual(ens.picks[c].length, 5);
 });
+
+// ---------------------------------------------------------------- app API (button mode)
+const os = require('os');
+const fsT = require('fs');
+const pathT = require('path');
+
+function tempRoot(laoSources) {
+  const root = fsT.mkdtempSync(pathT.join(os.tmpdir(), 'lle-test-'));
+  fsT.mkdirSync(pathT.join(root, 'data/sources'), { recursive: true });
+  for (const [id, recs] of Object.entries(laoSources)) fsT.writeFileSync(pathT.join(root, `data/sources/${id}.json`), JSON.stringify(recs));
+  process.env.LLE_ROOT = root;
+  return root;
+}
+
+test('missingDraw: Lao result is due 10 minutes after 20:30 on weekdays only', () => {
+  const { missingDraw } = require('../api/_lib/run');
+  tempRoot({ phonhuay: { '2026-11-12': { last4: '0836' } } });
+  assert.strictEqual(missingDraw(MARKETS.lao, new Date('2026-11-13T20:30:00+07:00')), null);
+  assert.strictEqual(missingDraw(MARKETS.lao, new Date('2026-11-13T20:45:00+07:00')), '2026-11-13');
+  assert.strictEqual(missingDraw(MARKETS.lao, new Date('2026-11-15T10:00:00+07:00')), '2026-11-13');
+  delete process.env.LLE_ROOT;
+});
+
+test('build without lock never writes a prediction; with lock it writes once and waits for tonight', () => {
+  const { buildMarket } = require('../scripts/build');
+  const recs = {};
+  let d = new Date('2026-06-01T00:00:00Z');
+  for (let i = 0; recs && Object.keys(recs).length < 60; i++, d = new Date(d.getTime() + 86400000)) {
+    const iso = d.toISOString().slice(0, 10); const wd = d.getUTCDay();
+    if (wd >= 1 && wd <= 5 && iso <= '2026-11-13') recs[iso] = { last4: String((i * 7919) % 10000).padStart(4, '0') };
+  }
+  // keep the newest 60 weekdays up to 13 Nov
+  const all = {}; let n = 0; for (let t = new Date('2026-11-13T00:00:00Z'); n < 60; t = new Date(t.getTime() - 86400000)) { const iso = t.toISOString().slice(0, 10); const wd = t.getUTCDay(); if (wd >= 1 && wd <= 5) { all[iso] = { last4: String((n * 7919) % 10000).padStart(4, '0') }; n++; } }
+  const root = tempRoot({ phonhuay: all });
+  const quiet = { log: () => {}, skipBacktest: true };
+  const r1 = buildMarket(MARKETS.lao, { ...quiet, now: new Date('2026-11-13T21:00:00+07:00'), lock: false });
+  assert.strictEqual(r1.locked, false);
+  assert.strictEqual(fsT.existsSync(pathT.join(root, 'predictions/2026-11-16.json')), false);
+  const st = JSON.parse(fsT.readFileSync(pathT.join(root, 'public/data/status.json'), 'utf8'));
+  assert.strictEqual(st.target.date, '2026-11-16'); assert.strictEqual(st.locked, false);
+  const r2 = buildMarket(MARKETS.lao, { ...quiet, now: new Date('2026-11-13T21:00:00+07:00'), lock: true });
+  assert.strictEqual(r2.lockedNow, true);
+  const first = fsT.readFileSync(pathT.join(root, 'predictions/2026-11-16.json'), 'utf8');
+  const r3 = buildMarket(MARKETS.lao, { ...quiet, now: new Date('2026-11-14T09:00:00+07:00'), lock: true });
+  assert.strictEqual(r3.lockedNow, false);
+  assert.strictEqual(fsT.readFileSync(pathT.join(root, 'predictions/2026-11-16.json'), 'utf8'), first);
+  // 16 Nov 20:20: tonight's result isn't in yet, so 17 Nov can't be locked
+  const r4 = buildMarket(MARKETS.lao, { ...quiet, now: new Date('2026-11-16T20:20:00+07:00'), lock: true });
+  assert.strictEqual(r4.lockedNow, false); assert.match(r4.message, /รอผล/);
+  delete process.env.LLE_ROOT;
+});

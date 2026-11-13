@@ -4,11 +4,13 @@ const fs = require('fs');
 const path = require('path');
 const { MARKETS } = require('./markets');
 
-const ROOT = path.resolve(__dirname, '..', '..');
+const DEFAULT_ROOT = path.resolve(__dirname, '..', '..');
+const rootDir = () => process.env.LLE_ROOT || DEFAULT_ROOT;
 
 // Absolute paths for a market's folders.
 function pathsFor(market = MARKETS.lao) {
   const p = market.paths;
+  const ROOT = rootDir();
   return {
     root: ROOT,
     sources: path.join(ROOT, p.sources),
@@ -18,7 +20,7 @@ function pathsFor(market = MARKETS.lao) {
     site: path.join(ROOT, p.site),
   };
 }
-const P = pathsFor(MARKETS.lao); // Lao paths, kept for older callers
+const P = pathsFor(MARKETS.lao); // Lao paths at load time, kept for older callers
 
 function readJSON(file, fallback) {
   try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return fallback; }

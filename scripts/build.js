@@ -4,6 +4,8 @@
 //   node scripts/build.js --market thai            one market
 //   node scripts/build.js --now 2026-10-30T12:00:00+07:00   pretend it is this time (testing)
 //   node scripts/build.js --skip-backtest
+//   node scripts/build.js --no-lock     update data only; predictions are locked from the app's button
+// The same code runs inside the Vercel API (api/*.js) through buildMarket().
 'use strict';
 
 const fs = require('fs');
@@ -16,7 +18,7 @@ const { walkForward, scorePicks } = require('./lib/backtest');
 const { pathsFor, readJSON, writeJSON, loadSources } = require('./lib/store');
 
 const arg = (name) => { const i = process.argv.indexOf(name); return i > -1 ? process.argv[i + 1] : null; };
-const NOW = arg('--now') ? new Date(arg('--now')) : new Date();
+let NOW = new Date();
 const BKK_OFFSET = 7 * 3600 * 1000;
 const toMin = (hhmm) => { const [h, m] = hhmm.split(':').map(Number); return h * 60 + m; };
 
@@ -78,7 +80,12 @@ function matchActual(market, pred, usable) {
   return usable.find((d) => d.date > after && d.date <= until) || null;
 }
 
-function buildMarket(market) {
+// opts: { now: Date, lock: boolean, skipBacktest: boolean, log: fn }
+// Returns { target, locked, lockedNow, prediction, message }.
+function buildMarket(market, opts = {}) {
+  NOW = opts.now || new Date();
+  const lock = opts.lock !== false;
+  const log = opts.log || console.log;
   const P = pathsFor(market);
   const cats = market.cats;
   const draws = mergeSources(loadSources(market), market);
@@ -94,7 +101,7 @@ function buildMarket(market) {
 
   // ---------- backtest (walk-forward) ----------
   let backtest = readJSON(path.join(P.site, 'backtest.json'), null);
-  if (!process.argv.includes('--skip-backtest') && usable.length > 30) {
+  if (!opts.skipBacktest && usable.length > 30) {
     backtest = { builtAt, method: 'walk-forward: แต่ละงวดใช้เฉพาะข้อมูลก่อนหน้าเท่านั้น, ขั้นต่ำ 30 งวด', picksPerModel: N_PICKS, cats, ...walkForward(draws, { minHistory: 30, cats, groupWindow: market.groupWindow }) };
     writeJSON(path.join(P.site, 'backtest.json'), backtest);
   }
@@ -131,22 +138,29 @@ function buildMarket(market) {
   const targetDate = market.nextTarget(draws, from);
   const tag = `[${market.id}]`;
   if (!targetDate) {
-    console.log(`${tag} รอผลงวดที่ควรออกแล้วก่อนล็อกงวดถัดไป`);
-    finishSite(market, P, builtAt, index, predFiles);
-    console.log(`${tag} ข้อมูล ${draws.length} งวด (ใช้ได้ ${usable.length}), backtest ${backtest?.tests ?? '-'} งวด, ตรวจคำทำนายแล้ว ${live.length}`);
-    return;
+    const message = 'รอผลงวดที่ควรออกแล้วก่อน จึงจะทำนายงวดถัดไปได้';
+    log(`${tag} ${message}`);
+    finishSite(market, P, builtAt, index, predFiles, { target: null, closeAt: null, locked: false, drawTime: market.drawTime, close: market.close });
+    log(`${tag} ข้อมูล ${draws.length} งวด (ใช้ได้ ${usable.length}), backtest ${backtest?.tests ?? '-'} งวด, ตรวจคำทำนายแล้ว ${live.length}`);
+    return { target: null, locked: false, lockedNow: false, message };
   }
   const target = targetFor(market, targetDate);
   const predFile = path.join(P.predictions, `${target.date}.json`);
-  // After tonight's draw, wait for its result before locking the next draw so the
-  // next prediction includes it.
-  const awaitingToday = market.isDrawDay(todayBkk) && nowMin >= toMin(market.drawTime) && nowMin < toMin(market.awaitUntil) && !allDraws[todayBkk];
-  if (awaitingToday && target.date > todayBkk && !fs.existsSync(predFile)) {
-    console.log(`${tag} ยังไม่มีผลงวด ${todayBkk} — รอรอบถัดไปก่อนล็อกงวด ${target.date}`);
-  } else if (fs.existsSync(predFile)) {
-    console.log(`${tag} คำทำนายงวด ${target.date} ล็อกไว้แล้ว — ไม่เขียนทับ`);
+  // From tonight's close until its result is in, the next draw can't be predicted yet,
+  // so the prediction always includes the latest result.
+  const awaitingToday = market.isDrawDay(todayBkk) && nowMin >= toMin(market.close) && nowMin < toMin(market.awaitUntil) && !allDraws[todayBkk];
+  let message = '';
+  let lockedNow = false;
+  let prediction = null;
+  if (fs.existsSync(predFile)) {
+    message = `คำทำนายงวด ${target.date} ล็อกไว้แล้ว`;
+    prediction = readJSON(predFile);
+  } else if (awaitingToday && target.date > todayBkk) {
+    message = `ยังไม่มีผลงวด ${todayBkk} รอผลเข้าก่อนจึงจะทำนายงวด ${target.date} ได้`;
   } else if (NOW > closeUTC(market, target.date)) {
-    console.log(`${tag} เลยเวลาปิดของงวด ${target.date} แล้ว — ไม่สร้าง`);
+    message = `เลยเวลาปิดรับของงวด ${target.date} แล้ว`;
+  } else if (!lock) {
+    message = `งวด ${target.date} ยังไม่ได้ทำนาย`;
   } else {
     const history = usable.filter((d) => d.date < target.date);
     const tips = readJSON(path.join(P.tips, `${target.date}.json`), null);
@@ -172,15 +186,22 @@ function buildMarket(market) {
     };
     pred.hash = crypto.createHash('sha256').update(JSON.stringify({ market: market.id, target, lockedAt: builtAt, final: pred.final, models: pred.models.map((m) => [m.id, m.picks]) })).digest('hex').slice(0, 16);
     writeJSON(predFile, pred);
-    index.push({ date: target.date, lockedAt: builtAt, onTime: true, hash: pred.hash, status: 'pending' });
-    console.log(`${tag} ล็อกคำทำนายงวด ${target.date} (${target.weekdayTh}) hash ${pred.hash}`);
+    index.push({ date: target.date, drawDate: target.date, lockedAt: builtAt, onTime: true, hash: pred.hash, status: allDraws[target.date]?.status || 'pending' });
+    message = `ล็อกคำทำนายงวด ${target.date} (${target.weekdayTh}) hash ${pred.hash}`;
+    lockedNow = true;
+    prediction = pred;
   }
+  log(`${tag} ${message}`);
 
-  finishSite(market, P, builtAt, index, predFiles);
-  console.log(`${tag} ข้อมูล ${draws.length} งวด (ใช้ได้ ${usable.length}), backtest ${backtest?.tests ?? '-'} งวด, ตรวจคำทำนายแล้ว ${live.length}`);
+  const locked = fs.existsSync(predFile);
+  finishSite(market, P, builtAt, index, predFiles, { target, closeAt: closeUTC(market, target.date).toISOString(), locked, drawTime: market.drawTime, close: market.close });
+  log(`${tag} ข้อมูล ${draws.length} งวด (ใช้ได้ ${usable.length}), backtest ${backtest?.tests ?? '-'} งวด, ตรวจคำทำนายแล้ว ${live.length}`);
+  return { target, locked, lockedNow, prediction, message };
 }
 
-function finishSite(market, P, builtAt, index, predFiles) {
+function finishSite(market, P, builtAt, index, predFiles, status) {
+  // status.json has no builtAt on purpose: it only changes when the target or lock changes.
+  writeJSON(path.join(P.site, 'status.json'), status);
   const latest = predFiles().pop();
   if (latest) fs.copyFileSync(path.join(P.predictions, latest), path.join(P.site, 'latest.json'));
   fs.mkdirSync(path.join(P.site, 'predictions'), { recursive: true });
@@ -189,5 +210,12 @@ function finishSite(market, P, builtAt, index, predFiles) {
   writeJSON(path.join(P.site, 'changes.json'), readJSON(P.changes, []));
 }
 
-const only = arg('--market');
-for (const m of Object.values(MARKETS)) if (!only || only === m.id) buildMarket(m);
+module.exports = { buildMarket };
+
+if (require.main === module) {
+  const only = arg('--market');
+  const now = arg('--now') ? new Date(arg('--now')) : new Date();
+  for (const m of Object.values(MARKETS)) {
+    if (!only || only === m.id) buildMarket(m, { now, lock: !process.argv.includes('--no-lock'), skipBacktest: process.argv.includes('--skip-backtest') });
+  }
+}
