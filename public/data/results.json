@@ -1,5 +1,5 @@
 {
-  "builtAt": "2026-11-13T13:17:49.751Z",
+  "builtAt": "2026-11-13T13:54:16.514Z",
   "market": {
     "id": "lao",
     "name": "หวยลาว",
@@ -37,10 +37,33 @@
   },
   "counts": {
     "single": 258,
-    "verified": 238,
+    "verified": 239,
     "majority": 2
   },
   "draws": [
+    {
+      "date": "2026-11-13",
+      "weekday": 5,
+      "weekdayTh": "ศุกร์",
+      "group": "5",
+      "groupTh": "วันศุกร์",
+      "status": "verified",
+      "usable": true,
+      "last4": "0900",
+      "top3": "900",
+      "top2": "00",
+      "bottom2": "09",
+      "sources": {
+        "phonhuay": "900/09",
+        "saihuay": "900/09"
+      },
+      "voters": [
+        "phonhuay",
+        "saihuay"
+      ],
+      "independentSources": 2,
+      "issues": []
+    },
     {
       "date": "2026-11-12",
       "weekday": 4,
@@ -54,14 +77,16 @@
       "top2": "36",
       "bottom2": "98",
       "sources": {
+        "lottoth": "836/98",
         "phonhuay": "836/98",
         "saihuay": "836/98"
       },
       "voters": [
+        "lottoth",
         "phonhuay",
         "saihuay"
       ],
-      "independentSources": 2,
+      "independentSources": 3,
       "issues": []
     },
     {
@@ -77,14 +102,16 @@
       "top2": "93",
       "bottom2": "21",
       "sources": {
+        "lottoth": "193/21",
         "phonhuay": "193/21",
         "saihuay": "193/21"
       },
       "voters": [
+        "lottoth",
         "phonhuay",
         "saihuay"
       ],
-      "independentSources": 2,
+      "independentSources": 3,
       "issues": []
     },
     {
@@ -100,14 +127,16 @@
       "top2": "46",
       "bottom2": "35",
       "sources": {
+        "lottoth": "546/35",
         "phonhuay": "546/35",
         "saihuay": "546/35"
       },
       "voters": [
+        "lottoth",
         "phonhuay",
         "saihuay"
       ],
-      "independentSources": 2,
+      "independentSources": 3,
       "issues": []
     },
     {
@@ -123,14 +152,16 @@
       "top2": "38",
       "bottom2": "70",
       "sources": {
+        "lottoth": "038/70",
         "phonhuay": "038/70",
         "saihuay": "038/70"
       },
       "voters": [
+        "lottoth",
         "phonhuay",
         "saihuay"
       ],
-      "independentSources": 2,
+      "independentSources": 3,
       "issues": []
     },
     {
@@ -146,14 +177,16 @@
       "top2": "98",
       "bottom2": "80",
       "sources": {
+        "lottoth": "098/80",
         "phonhuay": "098/80",
         "saihuay": "098/80"
       },
       "voters": [
+        "lottoth",
         "phonhuay",
         "saihuay"
       ],
-      "independentSources": 2,
+      "independentSources": 3,
       "issues": []
     },
     {
@@ -169,14 +202,16 @@
       "top2": "79",
       "bottom2": "40",
       "sources": {
+        "lottoth": "079/40",
         "phonhuay": "079/40",
         "saihuay": "079/40"
       },
       "voters": [
+        "lottoth",
         "phonhuay",
         "saihuay"
       ],
-      "independentSources": 2,
+      "independentSources": 3,
       "issues": []
     },
     {
@@ -192,14 +227,16 @@
       "top2": "08",
       "bottom2": "88",
       "sources": {
+        "lottoth": "808/88",
         "phonhuay": "808/88",
         "saihuay": "808/88"
       },
       "voters": [
+        "lottoth",
         "phonhuay",
         "saihuay"
       ],
-      "independentSources": 2,
+      "independentSources": 3,
       "issues": []
     },
     {
@@ -215,14 +252,16 @@
       "top2": "13",
       "bottom2": "57",
       "sources": {
+        "lottoth": "713/57",
         "phonhuay": "713/57",
         "saihuay": "713/57"
       },
       "voters": [
+        "lottoth",
         "phonhuay",
         "saihuay"
       ],
-      "independentSources": 2,
+      "independentSources": 3,
       "issues": []
     },
     {
@@ -238,14 +277,16 @@
       "top2": "55",
       "bottom2": "81",
       "sources": {
+        "lottoth": "155/81",
         "phonhuay": "155/81",
         "saihuay": "155/81"
       },
       "voters": [
+        "lottoth",
         "phonhuay",
         "saihuay"
       ],
-      "independentSources": 2,
+      "independentSources": 3,
       "issues": []
     },
     {
