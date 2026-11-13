@@ -1,5 +1,6 @@
 name: Daily results & locked prediction
 
+# schedule re-registered 2026-11-13 (GitHub stopped firing scheduled runs on 2026-11-09)
 on:
   schedule:
     # หวยลาว: Mon–Fri 20:30 Bangkok (13:30 UTC)
