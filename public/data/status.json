@@ -1,13 +1,13 @@
 {
   "target": {
-    "date": "2026-11-13",
-    "weekday": 5,
-    "weekdayTh": "ศุกร์",
-    "group": "5",
-    "groupTh": "วันศุกร์"
+    "date": "2026-11-16",
+    "weekday": 1,
+    "weekdayTh": "จันทร์",
+    "group": "1",
+    "groupTh": "วันจันทร์"
   },
-  "closeAt": "2026-11-13T13:15:00.000Z",
-  "locked": true,
+  "closeAt": "2026-11-16T13:15:00.000Z",
+  "locked": false,
   "drawTime": "20:30",
   "close": "20:15"
 }
