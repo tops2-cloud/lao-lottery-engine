@@ -1,6 +1,12 @@
 {
-  "target": null,
-  "closeAt": null,
+  "target": {
+    "date": "2026-12-01",
+    "weekday": 2,
+    "weekdayTh": "อังคาร",
+    "group": "early",
+    "groupTh": "งวดต้นเดือน"
+  },
+  "closeAt": "2026-12-01T07:00:00.000Z",
   "locked": false,
   "drawTime": "14:30",
   "close": "14:00"
