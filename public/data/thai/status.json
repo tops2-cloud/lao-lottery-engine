@@ -7,7 +7,7 @@
     "groupTh": "งวดต้นเดือน"
   },
   "closeAt": "2026-12-01T07:00:00.000Z",
-  "locked": false,
+  "locked": true,
   "drawTime": "14:30",
   "close": "14:00"
 }
