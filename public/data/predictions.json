@@ -1,6 +1,14 @@
 {
-  "builtAt": "2026-11-18T16:03:46.440Z",
+  "builtAt": "2026-11-18T17:15:12.309Z",
   "entries": [
+    {
+      "date": "2026-11-19",
+      "drawDate": "2026-11-19",
+      "lockedAt": "2026-11-18T17:15:12.309Z",
+      "onTime": true,
+      "hash": "bc06552e883abfcb",
+      "status": "pending"
+    },
     {
       "date": "2026-11-18",
       "drawDate": "2026-11-18",
