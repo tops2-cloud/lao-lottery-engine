@@ -1,5 +1,5 @@
 {
-  "builtAt": "2026-11-23T13:30:29.325Z",
+  "builtAt": "2026-11-23T14:42:32.405Z",
   "note": "นับเฉพาะคำทำนายที่ล็อกก่อน 20:15 น. ของวันออกผล",
   "entries": [
     {
@@ -2794,7 +2794,7 @@
       "lockedAt": "2026-11-20T14:51:01.566Z",
       "onTime": true,
       "hash": "b07ddaedea626baa",
-      "status": "single",
+      "status": "verified",
       "actual": {
         "top3": "791",
         "top2": "91",
