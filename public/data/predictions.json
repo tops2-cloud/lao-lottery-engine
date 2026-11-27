@@ -1,5 +1,5 @@
 {
-  "builtAt": "2026-11-27T13:27:09.016Z",
+  "builtAt": "2026-11-27T14:35:05.360Z",
   "entries": [
     {
       "date": "2026-11-27",
@@ -7,7 +7,7 @@
       "lockedAt": "2026-11-26T16:07:56.563Z",
       "onTime": true,
       "hash": "e78ee47b2942520b",
-      "status": "single",
+      "status": "verified",
       "actual": {
         "top3": "103",
         "top2": "03",
